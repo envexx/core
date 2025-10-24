@@ -5,32 +5,32 @@ export default function AboutSection() {
     {
       icon: Code2,
       title: "Frontend Development",
-      description: "React, Vue, Next.js, TypeScript",
+      description: "Modern interfaces built with React, Next.js, and scalable architectures",
     },
     {
       icon: Server,
       title: "Backend Development",
-      description: "Node.js, Express, PostgreSQL, APIs",
+      description: "Microservices powered by Node.js, REST, GraphQL, and PostgreSQL",
     },
     {
       icon: Palette,
       title: "UI/UX Design",
-      description: "Figma, Responsive Design, Web3 Aesthetics",
+      description: "User research, design systems, and premium-grade prototyping",
     },
     {
       icon: Rocket,
       title: "Deployment & DevOps",
-      description: "CI/CD, Cloud Services, Optimization",
+      description: "CI/CD pipelines, cloud orchestration, and unified observability",
     },
     {
       icon: Shield,
       title: "Security & Performance",
-      description: "Authentication, Encryption, Speed",
+      description: "End-to-end security, compliance, and performance optimization",
     },
     {
       icon: Zap,
       title: "Modern Tech Stack",
-      description: "Cutting-edge tools and frameworks",
+      description: "Emerging technologies leveraged for competitive advantage",
     },
   ];
 
@@ -61,31 +61,29 @@ export default function AboutSection() {
           {/* Header */}
           <div className="text-center space-y-6">
             <h2 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight">
-              Tentang <span className="gradient-text-gold">ENVEXX</span>
+              Inside <span className="gradient-text-gold">CORE</span>
             </h2>
             <p className="max-w-3xl mx-auto text-lg md:text-xl text-muted-foreground leading-relaxed">
-              Kami adalah tim full stack developer yang berdedikasi untuk menciptakan
-              solusi digital premium. Dengan perpaduan keahlian teknis dan estetika modern,
-              kami menghadirkan aplikasi yang tidak hanya powerful, tetapi juga indah dipandang.
+              CORE is a full-spectrum technology studio combining business strategy, experience
+              design, and software engineering. We orchestrate digital transformation with
+              premium, secure, and on-brand solutions tailored to measurable outcomes.
             </p>
           </div>
 
           {/* Vision & Mission */}
           <div className="grid md:grid-cols-2 gap-8">
             <div className="glass-card p-8 rounded-2xl space-y-4 hover:scale-105 transition-all duration-300 glow-border-cyan">
-              <h3 className="font-display font-semibold text-2xl">Visi Kami</h3>
+              <h3 className="font-display font-semibold text-2xl">Our Vision</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Menjadi mitra terpercaya dalam transformasi digital dengan menghadirkan
-                solusi teknologi berkelas dunia yang menggabungkan inovasi, estetika,
-                dan performa optimal.
+                To become the strategic partner for organizations accelerating digital innovation
+                through world-class product experiences and quantifiable business impact.
               </p>
             </div>
             <div className="glass-card p-8 rounded-2xl space-y-4 hover:scale-105 transition-all duration-300 glow-border-gold">
-              <h3 className="font-display font-semibold text-2xl">Misi Kami</h3>
+              <h3 className="font-display font-semibold text-2xl">Our Mission</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Memberikan layanan full stack development dengan standar tertinggi,
-                fokus pada kualitas kode, user experience yang exceptional, dan
-                kepuasan klien yang maksimal.
+                To deliver end-to-end services with engineering rigor, intuitive user experiences,
+                and proactive guidance so every product launch exceeds strategic goals.
               </p>
             </div>
           </div>
@@ -93,7 +91,7 @@ export default function AboutSection() {
           {/* Skills Grid */}
           <div>
             <h3 className="font-display font-semibold text-3xl md:text-4xl text-center mb-12">
-              Keahlian <span className="gradient-text-cyan">Kami</span>
+              Our <span className="gradient-text-cyan">Core Expertise</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {skills.map((skill, index) => (

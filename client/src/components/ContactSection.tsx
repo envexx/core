@@ -22,15 +22,15 @@ export default function ContactSection() {
     },
     onSuccess: () => {
       toast({
-        title: "Pesan Terkirim!",
-        description: "Terima kasih! Kami akan segera menghubungi Anda.",
+        title: "Message Sent",
+        description: "Thank you for reaching out. We will respond shortly.",
       });
       setFormData({ name: "", email: "", message: "" });
     },
     onError: () => {
       toast({
-        title: "Terjadi Kesalahan",
-        description: "Mohon coba lagi atau hubungi kami melalui WhatsApp.",
+        title: "Something Went Wrong",
+        description: "Please try again or connect with us via WhatsApp.",
         variant: "destructive",
       });
     },
@@ -45,19 +45,19 @@ export default function ContactSection() {
     {
       icon: Mail,
       label: "Email",
-      value: "hello@envexx.com",
-      link: "mailto:hello@envexx.com",
+      value: "coresolution3@gmail.com",
+      link: "mailto:coresolution3@gmail.com",
     },
     {
       icon: Phone,
       label: "WhatsApp",
-      value: "+62 812-3456-7890",
-      link: "https://wa.me/6281234567890",
+      value: "+62 822-9219-5682",
+      link: "https://wa.me/6282292195682",
     },
     {
       icon: MapPin,
       label: "Location",
-      value: "Jakarta, Indonesia",
+      value: "Batam, Indonesia",
       link: null,
     },
   ];
@@ -69,11 +69,11 @@ export default function ContactSection() {
           {/* Header */}
           <div className="text-center space-y-6">
             <h2 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight">
-              Mari <span className="gradient-text-gold">Berkolaborasi</span>
+              Connect with the <span className="gradient-text-gold">CORE Team</span>
             </h2>
             <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
-              Punya ide proyek? Mari diskusikan bagaimana kami dapat membantu
-              mewujudkan visi digital Anda.
+              Share your digital ambitions and we will help define the right strategic pathway—from
+              validating ideas to launching production-ready platforms at scale.
             </p>
           </div>
 
@@ -82,10 +82,10 @@ export default function ContactSection() {
             <div className="glass-card p-8 md:p-10 rounded-2xl space-y-8">
               <div className="space-y-2">
                 <h3 className="font-display font-semibold text-2xl">
-                  Kirim Pesan
+                  Start the Conversation
                 </h3>
                 <p className="text-muted-foreground">
-                  Isi form di bawah dan kami akan segera menghubungi Anda.
+                  Outline your project goals and our consultants will respond with initial recommendations.
                 </p>
               </div>
 
@@ -95,11 +95,11 @@ export default function ContactSection() {
                     htmlFor="name"
                     className="text-sm font-medium"
                   >
-                    Nama Lengkap
+                    Full Name
                   </label>
                   <Input
                     id="name"
-                    placeholder="John Doe"
+                    placeholder="Your full name"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
@@ -115,12 +115,12 @@ export default function ContactSection() {
                     htmlFor="email"
                     className="text-sm font-medium"
                   >
-                    Email
+                    Email Address
                   </label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="you@company.com"
                     value={formData.email}
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
@@ -136,11 +136,11 @@ export default function ContactSection() {
                     htmlFor="message"
                     className="text-sm font-medium"
                   >
-                    Pesan
+                    Message
                   </label>
                   <Textarea
                     id="message"
-                    placeholder="Ceritakan tentang proyek Anda..."
+                    placeholder="Share business goals, scope, or target timelines for your initiative..."
                     value={formData.message}
                     onChange={(e) =>
                       setFormData({ ...formData, message: e.target.value })
@@ -159,11 +159,11 @@ export default function ContactSection() {
                   data-testid="button-submit-contact"
                 >
                   {contactMutation.isPending ? (
-                    "Mengirim..."
+                    "Sending..."
                   ) : (
                     <>
                       <Send className="mr-2 w-5 h-5" />
-                      Kirim Pesan
+                      Submit Request
                     </>
                   )}
                 </Button>
@@ -209,11 +209,11 @@ export default function ContactSection() {
               {/* Quick Contact */}
               <div className="glass-card p-8 rounded-2xl space-y-6 glow-border-gold">
                 <h4 className="font-display font-semibold text-xl">
-                  Butuh Respons Cepat?
+                  Need a Rapid Response?
                 </h4>
                 <p className="text-muted-foreground">
-                  Hubungi kami langsung via WhatsApp untuk konsultasi gratis
-                  dan respons dalam hitungan menit.
+                  Reach us on WhatsApp for immediate access to our consultants and schedule a discovery call
+                  that fits your calendar.
                 </p>
                 <Button
                   size="lg"
@@ -223,7 +223,7 @@ export default function ContactSection() {
                   data-testid="button-whatsapp"
                 >
                   <Phone className="mr-2 w-5 h-5" />
-                  Chat WhatsApp
+                  Message Us on WhatsApp
                 </Button>
               </div>
             </div>

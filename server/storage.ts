@@ -1,12 +1,13 @@
-import { 
-  type Project, 
+import {
+  type Project,
   type InsertProject,
   type Testimonial,
   type InsertTestimonial,
   type ContactSubmission,
-  type InsertContact
+  type InsertContact,
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { portfolioSeed } from "../shared/portfolio-data";
 
 export interface IStorage {
   // Projects
@@ -40,54 +41,11 @@ export class MemStorage implements IStorage {
 
   private seedData() {
     // Seed Projects
-    const projectsData: InsertProject[] = [
-      {
-        title: "E-Commerce Platform Premium",
-        description: "Platform e-commerce modern dengan fitur lengkap, payment gateway terintegrasi, dan admin dashboard yang powerful.",
-        image: "/assets/generated_images/E-commerce_project_mockup_9e5f7f0f.png",
-        technologies: ["React", "Node.js", "PostgreSQL", "Stripe"],
-        category: "Web Application",
-      },
-      {
-        title: "Analytics Dashboard Pro",
-        description: "Dashboard analytics real-time dengan visualisasi data yang stunning dan insights mendalam untuk business intelligence.",
-        image: "/assets/generated_images/Analytics_dashboard_project_3f5cd206.png",
-        technologies: ["Next.js", "TypeScript", "D3.js", "Redis"],
-        category: "Data Visualization",
-      },
-      {
-        title: "Social Media Platform",
-        description: "Platform social media dengan real-time messaging, content sharing, dan engagement features yang interaktif.",
-        image: "/assets/generated_images/Social_platform_project_c866b343.png",
-        technologies: ["React", "Express", "WebSocket", "MongoDB"],
-        category: "Social Platform",
-      },
-      {
-        title: "Mobile Banking App",
-        description: "Aplikasi mobile banking yang secure dengan fitur transfer, payment, investment tracking, dan financial planning.",
-        image: "/assets/generated_images/Banking_app_project_1d00ab75.png",
-        technologies: ["React Native", "Node.js", "PostgreSQL", "JWT"],
-        category: "Fintech",
-      },
-      {
-        title: "Real Estate Marketplace",
-        description: "Marketplace properti premium dengan virtual tour, advanced search filters, dan sistem booking yang seamless.",
-        image: "/assets/generated_images/Real_estate_platform_project_4f61eba2.png",
-        technologies: ["Vue.js", "Laravel", "MySQL", "Google Maps API"],
-        category: "Marketplace",
-      },
-      {
-        title: "Fitness & Wellness App",
-        description: "Aplikasi fitness tracking dengan workout plans, nutrition guides, progress monitoring, dan community features.",
-        image: "/assets/generated_images/Fitness_app_project_85b545c7.png",
-        technologies: ["React", "Express", "MongoDB", "Chart.js"],
-        category: "Health & Fitness",
-      },
-    ];
+    const projectsData: InsertProject[] = portfolioSeed;
 
     projectsData.forEach((project) => {
       const id = randomUUID();
-      this.projects.set(id, { ...project, id });
+      this.projects.set(id, { ...project, id, url: project.url ?? null });
     });
 
     // Seed Testimonials
@@ -135,7 +93,7 @@ export class MemStorage implements IStorage {
 
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = randomUUID();
-    const project: Project = { ...insertProject, id };
+    const project: Project = { ...insertProject, id, url: insertProject.url ?? null };
     this.projects.set(id, project);
     return project;
   }

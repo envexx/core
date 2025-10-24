@@ -24,10 +24,9 @@ export default function Navbar() {
 
   const navLinks = [
     { label: "Home", id: "hero" },
-    { label: "Tentang", id: "about" },
+    { label: "About", id: "about" },
     { label: "Portfolio", id: "portfolio" },
-    { label: "Testimoni", id: "testimonials" },
-    { label: "Kontak", id: "contact" },
+    { label: "Contact", id: "contact" },
   ];
 
   return (
@@ -44,7 +43,7 @@ export default function Navbar() {
             className="font-display font-bold text-2xl tracking-tight hover:scale-105 transition-transform"
             data-testid="button-logo"
           >
-            <span className="gradient-text-gold">ENVEXX</span>
+            <span className="gradient-text-gold">CORE</span>
           </button>
 
           {/* Desktop Navigation */}
@@ -65,7 +64,7 @@ export default function Navbar() {
               className="glow-cyan-hover transition-all duration-300"
               data-testid="button-cta-nav"
             >
-              Mulai Project
+              Discuss Your Project
             </Button>
           </div>
 
@@ -103,7 +102,7 @@ export default function Navbar() {
               className="w-full glow-cyan-hover"
               data-testid="button-cta-mobile"
             >
-              Mulai Project
+              Discuss Your Project
             </Button>
           </div>
         </div>

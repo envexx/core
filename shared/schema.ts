@@ -10,6 +10,7 @@ export const projects = pgTable("projects", {
   image: text("image").notNull(),
   technologies: text("technologies").array().notNull(),
   category: text("category").notNull(),
+  url: text("url"),
 });
 
 export const insertProjectSchema = createInsertSchema(projects).omit({

@@ -5,10 +5,10 @@ export default function Footer() {
 
   const footerLinks = {
     company: [
-      { label: "Tentang Kami", href: "#about" },
+      { label: "About", href: "#about" },
       { label: "Portfolio", href: "#portfolio" },
-      { label: "Testimoni", href: "#testimonials" },
-      { label: "Kontak", href: "#contact" },
+      { label: "Services", href: "#portfolio" },
+      { label: "Contact", href: "#contact" },
     ],
     services: [
       { label: "Web Development", href: "#portfolio" },
@@ -24,7 +24,7 @@ export default function Footer() {
   };
 
   const socialLinks = [
-    { icon: Github, href: "https://github.com", label: "GitHub" },
+    { icon: Github, href: "https://github.com/envexx", label: "GitHub" },
     { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
     { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
     { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
@@ -47,11 +47,12 @@ export default function Footer() {
           <div className="lg:col-span-4 space-y-6">
             <div className="space-y-4">
               <h3 className="font-display font-bold text-3xl">
-                <span className="gradient-text-gold">ENVEXX</span>
+                <span className="gradient-text-gold">CORE</span>
               </h3>
               <p className="text-muted-foreground leading-relaxed max-w-sm">
-                Menciptakan solusi digital premium dengan teknologi terkini.
-                Transformasi visi Anda menjadi kenyataan.
+                A technology studio designing and delivering premium digital products with
+                strategic insight, distinctive aesthetics, and robust engineering.
+                Based in Batam, serving global clients with end-to-end execution.
               </p>
             </div>
 
@@ -138,10 +139,10 @@ export default function Footer() {
         <div className="pt-8 border-t border-glass-border/20">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <p>
-              © {currentYear} ENVEXX. All rights reserved.
+              © {currentYear} CORE. All rights reserved.
             </p>
             <p className="flex items-center gap-2">
-              Crafted with <Heart className="w-4 h-4 text-glow-gold fill-glow-gold" /> by ENVEXX Team
+              Crafted with <Heart className="w-4 h-4 text-glow-gold fill-glow-gold" /> by the CORE team
             </p>
           </div>
         </div>

@@ -3,10 +3,68 @@ import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@shared/schema";
 
+const fallbackProjects: Project[] = [
+  {
+    id: "fallback-klinik-yamet",
+    title: "Klinik Yamet Digital Care",
+    description:
+      "Integrated clinic platform supporting appointments, electronic medical records, and responsive teleconsultations.",
+    image: "/klinik yamet.png",
+    technologies: ["Next.js", "TypeScript", "PostgreSQL", "Tailwind CSS"],
+    category: "Healthcare Platform",
+    url: "https://yametbatamtiban.id/",
+  },
+  {
+    id: "fallback-shoppys",
+    title: "ShoppyS AI Marketplace",
+    description:
+      "AI-assisted commerce destination delivering conversational product discovery and frictionless checkout.",
+    image: "/shoppys.png",
+    technologies: ["Next.js", "Node.js", "Stripe", "Redis"],
+    category: "E-Commerce",
+    url: "https://shoppy-s-ai-apc2.vercel.app/",
+  },
+  {
+    id: "fallback-stellar",
+    title: "Stellar Horizon Event Hub",
+    description:
+      "Immersive event microsite featuring animated storytelling, live scheduling, and sponsor showcases.",
+    image: "/stellar.png",
+    technologies: ["Next.js", "Framer Motion", "Supabase", "Tailwind CSS"],
+    category: "Event Website",
+    url: "https://stellar-horizon-batam-landing.vercel.app/",
+  },
+  {
+    id: "fallback-concierge",
+    title: "CORE Client Concierge",
+    description:
+      "Client services portal offering project health dashboards, roadmap planning, and integrated support chat.",
+    image: "/app.png",
+    technologies: ["Next.js", "GraphQL", "Apollo", "Tailwind CSS"],
+    category: "Client Services",
+    url: null,
+  },
+];
+
+const dedupeProjects = (items: Project[]) => {
+  const seen = new Set<string>();
+  return items.filter((project) => {
+    const key = project.title.trim().toLowerCase();
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+};
+
 export default function PortfolioSection() {
   const { data: projects = [], isLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
+  const displayProjects = dedupeProjects(
+    projects.length ? projects : fallbackProjects
+  );
 
   return (
     <section id="portfolio" className="relative py-32 bg-muted/30">
@@ -15,11 +73,11 @@ export default function PortfolioSection() {
           {/* Header */}
           <div className="text-center space-y-6">
             <h2 className="font-display font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight">
-              Portfolio <span className="gradient-text-gold">Terbaik</span>
+              Featured <span className="gradient-text-gold">Portfolio</span>
             </h2>
             <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
-              Koleksi proyek-proyek yang telah kami kerjakan dengan standar
-              kualitas premium dan teknologi terkini.
+              A curated showcase of digital products engineered to accelerate client growth through
+              intentional design, resilient architecture, and purposeful user experiences.
             </p>
           </div>
 
@@ -51,9 +109,9 @@ export default function PortfolioSection() {
           )}
 
           {/* Projects Grid */}
-          {!isLoading && projects.length > 0 && (
+          {!isLoading && displayProjects.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {projects.map((project) => (
+              {displayProjects.map((project) => (
                 <div
                   key={project.id}
                   className="group glass-card rounded-2xl overflow-hidden hover:scale-105 hover:-translate-y-2 transition-all duration-300"
@@ -68,16 +126,6 @@ export default function PortfolioSection() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     
-                    {/* View Project Button - appears on hover */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <button
-                        className="glass-card px-6 py-3 rounded-lg font-medium flex items-center gap-2 glow-cyan-hover"
-                        data-testid={`button-view-${project.id}`}
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        Lihat Detail
-                      </button>
-                    </div>
                   </div>
 
                   {/* Project Info */}
@@ -106,6 +154,26 @@ export default function PortfolioSection() {
                         </Badge>
                       ))}
                     </div>
+
+                    {/* Project Link */}
+                    <div>
+                      {project.url ? (
+                        <a
+                          href={project.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm font-medium text-glow-cyan hover:text-glow-gold transition-colors"
+                          data-testid={`link-project-${project.id}`}
+                        >
+                          Visit Project
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      ) : (
+                        <span className="text-xs uppercase tracking-wide text-muted-foreground/80">
+                          Preview Coming Soon
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -116,7 +184,7 @@ export default function PortfolioSection() {
           {!isLoading && projects.length === 0 && (
             <div className="text-center py-20">
               <p className="text-muted-foreground text-lg">
-                Belum ada proyek yang ditampilkan.
+                Our portfolio is being updated. New case studies will be published shortly.
               </p>
             </div>
           )}
