@@ -1,70 +1,16 @@
 import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useQuery } from "@tanstack/react-query";
 import type { Project } from "@shared/schema";
+import { portfolioSeed } from "@shared/portfolio-data";
 
-const fallbackProjects: Project[] = [
-  {
-    id: "fallback-klinik-yamet",
-    title: "Klinik Yamet Digital Care",
-    description:
-      "Integrated clinic platform supporting appointments, electronic medical records, and responsive teleconsultations.",
-    image: "/klinik yamet.png",
-    technologies: ["Next.js", "TypeScript", "PostgreSQL", "Tailwind CSS"],
-    category: "Healthcare Platform",
-    url: "https://yametbatamtiban.id/",
-  },
-  {
-    id: "fallback-shoppys",
-    title: "ShoppyS AI Marketplace",
-    description:
-      "AI-assisted commerce destination delivering conversational product discovery and frictionless checkout.",
-    image: "/shoppys.png",
-    technologies: ["Next.js", "Node.js", "Stripe", "Redis"],
-    category: "E-Commerce",
-    url: "https://shoppy-s-ai-apc2.vercel.app/",
-  },
-  {
-    id: "fallback-stellar",
-    title: "Stellar Horizon Event Hub",
-    description:
-      "Immersive event microsite featuring animated storytelling, live scheduling, and sponsor showcases.",
-    image: "/stellar.png",
-    technologies: ["Next.js", "Framer Motion", "Supabase", "Tailwind CSS"],
-    category: "Event Website",
-    url: "https://stellar-horizon-batam-landing.vercel.app/",
-  },
-  {
-    id: "fallback-concierge",
-    title: "CORE Client Concierge",
-    description:
-      "Client services portal offering project health dashboards, roadmap planning, and integrated support chat.",
-    image: "/app.png",
-    technologies: ["Next.js", "GraphQL", "Apollo", "Tailwind CSS"],
-    category: "Client Services",
-    url: null,
-  },
-];
-
-const dedupeProjects = (items: Project[]) => {
-  const seen = new Set<string>();
-  return items.filter((project) => {
-    const key = project.title.trim().toLowerCase();
-    if (seen.has(key)) {
-      return false;
-    }
-    seen.add(key);
-    return true;
-  });
-};
+const projects: Project[] = portfolioSeed.map((project, index) => ({
+  ...project,
+  id: project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-") + `-${index}`,
+  url: project.url ?? null,
+}));
 
 export default function PortfolioSection() {
-  const { data: projects = [], isLoading } = useQuery<Project[]>({
-    queryKey: ["/api/projects"],
-  });
-  const displayProjects = dedupeProjects(
-    projects.length ? projects : fallbackProjects
-  );
+  const displayProjects = projects;
 
   return (
     <section id="portfolio" className="relative py-32 bg-muted/30">
@@ -81,35 +27,8 @@ export default function PortfolioSection() {
             </p>
           </div>
 
-          {/* Loading State */}
-          {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="glass-card rounded-2xl overflow-hidden animate-pulse"
-                >
-                  <div className="h-56 bg-muted/50" />
-                  <div className="p-6 space-y-4">
-                    <div className="h-6 bg-muted/50 rounded w-3/4" />
-                    <div className="h-4 bg-muted/50 rounded w-1/4" />
-                    <div className="space-y-2">
-                      <div className="h-4 bg-muted/50 rounded" />
-                      <div className="h-4 bg-muted/50 rounded w-5/6" />
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="h-6 bg-muted/50 rounded w-16" />
-                      <div className="h-6 bg-muted/50 rounded w-20" />
-                      <div className="h-6 bg-muted/50 rounded w-16" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* Projects Grid */}
-          {!isLoading && displayProjects.length > 0 && (
+          {displayProjects.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayProjects.map((project) => (
                 <div
@@ -177,15 +96,6 @@ export default function PortfolioSection() {
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!isLoading && projects.length === 0 && (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground text-lg">
-                Our portfolio is being updated. New case studies will be published shortly.
-              </p>
             </div>
           )}
         </div>
