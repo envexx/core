@@ -1,32 +1,37 @@
-import { Github, Linkedin, Twitter, Instagram, Heart } from "lucide-react";
+import { Github, Instagram } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
+import { FadeIn } from "@/components/ui/magic-effects";
 
 export default function Footer() {
+  const { lang, t } = useI18n();
   const currentYear = new Date().getFullYear();
 
-  const footerLinks = {
-    company: [
-      { label: "About", href: "#about" },
-      { label: "Portfolio", href: "#portfolio" },
-      { label: "Services", href: "#portfolio" },
-      { label: "Contact", href: "#contact" },
-    ],
-    services: [
-      { label: "Web Development", href: "#portfolio" },
-      { label: "Mobile Development", href: "#portfolio" },
-      { label: "UI/UX Design", href: "#portfolio" },
-      { label: "Consulting", href: "#contact" },
-    ],
-    legal: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
-      { label: "Cookie Policy", href: "#" },
-    ],
-  };
+  const navLinks = [
+    { label: t.nav.home[lang], href: "#hero" },
+    { label: t.nav.services[lang], href: "#services" },
+    { label: t.nav.products[lang], href: "#products" },
+    { label: t.nav.portfolio[lang], href: "#portfolio" },
+    { label: t.nav.about[lang], href: "#about" },
+    { label: t.nav.contact[lang], href: "#contact" },
+  ];
+
+  const serviceLinks = [
+    { label: t.footer.webDev[lang], href: "#services" },
+    { label: t.footer.mobileDev[lang], href: "#services" },
+    { label: t.footer.enterpriseSol[lang], href: "#services" },
+    { label: t.footer.digitalConsult[lang], href: "#contact" },
+  ];
+
+  const productLinks = [
+    { label: "kehadiran.online", href: "https://kehadiran.online" },
+    { label: "nilai.online", href: "https://www.nilai.online" },
+    { label: "ZBK Transport", href: "https://www.zbktransportservices.com" },
+    { label: "ShoppyS AI", href: "https://shoppy-s-ai-apc2.vercel.app" },
+    { label: "Stacks AI Web", href: "https://stacks-ai-web.vercel.app" },
+  ];
 
   const socialLinks = [
     { icon: Github, href: "https://github.com/envexx", label: "GitHub" },
-    { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-    { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
     { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
   ];
 
@@ -40,117 +45,103 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative border-t border-glass-border/20 bg-muted/20">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-12">
-          {/* Brand Section */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="space-y-4">
-              <h3 className="font-display font-bold text-3xl">
-                <span className="gradient-text-gold">CORE</span>
+    <footer className="relative border-t border-foreground/5">
+      <FadeIn>
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            {/* Brand Section */}
+            <div className="col-span-2 md:col-span-1 space-y-4">
+              <h3 className="font-display font-bold text-lg">
+                <span className="gradient-text-gold">PT CORE SOLUTION DIGITAL</span>
               </h3>
-              <p className="text-muted-foreground leading-relaxed max-w-sm">
-                A technology studio designing and delivering premium digital products with
-                strategic insight, distinctive aesthetics, and robust engineering.
-                Based in Batam, serving global clients with end-to-end execution.
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+                {t.footer.description[lang]}
               </p>
-            </div>
-
-            {/* Social Links */}
-            <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg glass-card flex items-center justify-center hover:scale-110 hover-elevate transition-all duration-300"
-                  aria-label={social.label}
-                  data-testid={`link-social-${social.label.toLowerCase()}`}
-                >
-                  <social.icon className="w-5 h-5" />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Company Links */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="font-display font-semibold text-sm uppercase tracking-wide text-foreground/80">
-              Company
-            </h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <button
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-                    data-testid={`link-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Services Links */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="font-display font-semibold text-sm uppercase tracking-wide text-foreground/80">
-              Services
-            </h4>
-            <ul className="space-y-3">
-              {footerLinks.services.map((link) => (
-                <li key={link.label}>
-                  <button
-                    onClick={() => scrollToSection(link.href)}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-                    data-testid={`link-service-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  >
-                    {link.label}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Links */}
-          <div className="lg:col-span-3 space-y-4">
-            <h4 className="font-display font-semibold text-sm uppercase tracking-wide text-foreground/80">
-              Legal
-            </h4>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.label}>
+              <div className="flex items-center gap-2">
+                {socialLinks.map((social) => (
                   <a
-                    href={link.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-                    data-testid={`link-legal-${link.label.toLowerCase().replace(/\s+/g, '-')}`}
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-8 h-8 rounded-lg border border-foreground/5 bg-foreground/[0.02] flex items-center justify-center hover:bg-foreground/[0.06] transition-all duration-300"
+                    aria-label={social.label}
                   >
-                    {link.label}
+                    <social.icon className="w-3.5 h-3.5" />
                   </a>
-                </li>
-              ))}
-            </ul>
+                ))}
+              </div>
+            </div>
+
+            {/* Company Links */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-medium uppercase tracking-widest text-foreground/50">
+                {t.footer.company[lang]}
+              </h4>
+              <ul className="space-y-2">
+                {navLinks.map((link) => (
+                  <li key={link.label}>
+                    <button
+                      onClick={() => scrollToSection(link.href)}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Services Links */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-medium uppercase tracking-widest text-foreground/50">
+                {t.footer.services[lang]}
+              </h4>
+              <ul className="space-y-2">
+                {serviceLinks.map((link) => (
+                  <li key={link.label}>
+                    <button
+                      onClick={() => scrollToSection(link.href)}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Product Links */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-medium uppercase tracking-widest text-foreground/50">
+                {t.footer.productsLabel[lang]}
+              </h4>
+              <ul className="space-y-2">
+                {productLinks.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Section */}
+          <div className="pt-6 border-t border-foreground/5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-muted-foreground/50">
+              <p>&copy; {currentYear} PT CORE SOLUTION DIGITAL. All rights reserved.</p>
+              <p>Batam, Indonesia</p>
+            </div>
           </div>
         </div>
-
-        {/* Bottom Section */}
-        <div className="pt-8 border-t border-glass-border/20">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>
-              © {currentYear} CORE. All rights reserved.
-            </p>
-            <p className="flex items-center gap-2">
-              Crafted with <Heart className="w-4 h-4 text-glow-gold fill-glow-gold" /> by the CORE team
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Background Glow */}
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-glow-cyan/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-glow-gold/5 rounded-full blur-3xl pointer-events-none" />
+      </FadeIn>
     </footer>
   );
 }

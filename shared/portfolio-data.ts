@@ -11,13 +11,31 @@ export const portfolioSeed: InsertProject[] = [
     url: "https://yametbatamtiban.id/",
   },
   {
-    title: "ShoppyS AI Marketplace",
+    title: "ZBK Transport Services",
     description:
-      "AI-assisted commerce destination delivering conversational product discovery and frictionless checkout.",
+      "Professional car rental and transport service platform with online booking, fleet management, and responsive design.",
+    image: "/zbk.png",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Vercel"],
+    category: "Car Rental",
+    url: "https://www.zbktransportservices.com/",
+  },
+  {
+    title: "ShoppyS AI Crypto",
+    description:
+      "AI-powered crypto marketplace delivering conversational product discovery and frictionless checkout experience.",
     image: "/shoppys.png",
-    technologies: ["Next.js", "Node.js", "Stripe", "Redis"],
-    category: "E-Commerce",
+    technologies: ["Next.js", "Node.js", "AI/ML", "Crypto"],
+    category: "AI Crypto",
     url: "https://shoppy-s-ai-apc2.vercel.app/",
+  },
+  {
+    title: "Stacks AI Web",
+    description:
+      "Advanced AI web platform for intelligent analysis, workflow automation, and data-driven business insights.",
+    image: "/stacks.png",
+    technologies: ["Next.js", "AI/ML", "TypeScript", "Tailwind CSS"],
+    category: "AI Platform",
+    url: "https://stacks-ai-web.vercel.app/",
   },
   {
     title: "Stellar Horizon Event Hub",
