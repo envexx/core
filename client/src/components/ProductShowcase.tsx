@@ -87,10 +87,10 @@ export default function ProductShowcase() {
   const current = products[activeProduct];
 
   return (
-    <section id="products" className="relative py-24 md:py-32 overflow-hidden">
+    <section id="products" className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
       <GlowOrb className="top-1/4 right-[-200px]" color="gold" size={500} blur={150} />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="space-y-16">
           {/* Header */}
           <FadeIn>
@@ -109,12 +109,12 @@ export default function ProductShowcase() {
           {/* Product Tabs */}
           <FadeIn delay={0.1}>
             <div className="flex justify-center">
-              <div className="inline-flex flex-wrap justify-center gap-1 p-1 rounded-2xl glass-card">
+              <div className="flex overflow-x-auto hide-scrollbar gap-1 p-1 rounded-2xl glass-card max-w-full">
                 {productKeys.map((key) => (
                   <button
                     key={key}
                     onClick={() => setActiveProduct(key)}
-                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                    className={`px-3 sm:px-4 py-2 rounded-xl text-[11px] sm:text-sm font-medium transition-all duration-300 whitespace-nowrap flex-shrink-0 ${
                       activeProduct === key
                         ? "bg-foreground/10 text-foreground shadow-sm"
                         : "text-muted-foreground hover:text-foreground"
@@ -135,12 +135,12 @@ export default function ProductShowcase() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
-              className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start"
+              className="grid lg:grid-cols-2 gap-6 lg:gap-12 items-start"
             >
               {/* Product Info */}
               <div className="space-y-6 order-2 lg:order-1">
                 <div className="space-y-3">
-                  <h3 className="font-display font-bold text-2xl md:text-3xl">{current.name}</h3>
+                  <h3 className="font-display font-bold text-xl sm:text-2xl md:text-3xl">{current.name}</h3>
                   <p className="text-sm text-glow-gold font-medium">{current.tagline}</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{current.description}</p>
                 </div>
@@ -179,8 +179,8 @@ export default function ProductShowcase() {
                     className="glass-card"
                     onClick={() => window.open(current.url, "_blank")}
                   >
-                    <ExternalLink className="mr-2 w-4 h-4" />
-                    {t.products.visit[lang]} {current.name}
+                    <ExternalLink className="mr-2 w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{t.products.visit[lang]} {current.name}</span>
                   </Button>
                 </div>
               </div>
@@ -207,12 +207,12 @@ export default function ProductShowcase() {
                     <iframe
                       src={current.url}
                       title={`Preview ${current.name}`}
-                      className="w-full h-[400px] md:h-[500px] bg-white"
+                      className="w-full h-[280px] sm:h-[400px] md:h-[500px] bg-white"
                       loading="lazy"
                       sandbox="allow-scripts allow-same-origin allow-popups"
                     />
                   ) : (
-                    <div className="w-full h-[400px] md:h-[500px] flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-foreground/[0.02] to-transparent">
+                    <div className="w-full h-[280px] sm:h-[400px] md:h-[500px] flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-foreground/[0.02] to-transparent">
                       <div className="text-center space-y-2">
                         <p className="text-sm text-muted-foreground">{t.products.clickToLoad[lang]}</p>
                         <p className="text-xs text-muted-foreground/50">{current.name}</p>

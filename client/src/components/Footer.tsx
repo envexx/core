@@ -47,11 +47,11 @@ export default function Footer() {
   return (
     <footer className="relative border-t border-foreground/5">
       <FadeIn>
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16 py-10 sm:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             {/* Brand Section */}
-            <div className="col-span-2 md:col-span-1 space-y-4">
-              <h3 className="font-display font-bold text-lg">
+            <div className="sm:col-span-2 md:col-span-1 space-y-4">
+              <h3 className="font-display font-bold text-base sm:text-lg">
                 <span className="gradient-text-gold">PT CORE SOLUTION DIGITAL</span>
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">

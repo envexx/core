@@ -66,10 +66,10 @@ export default function ContactSection() {
   ];
 
   return (
-    <section id="contact" className="relative py-24 md:py-32 overflow-hidden">
-      <GlowOrb className="bottom-0 right-[-100px]" color="gold" size={400} blur={140} />
+    <section id="contact" className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
+      <GlowOrb className="bottom-0 right-[-50px] sm:right-[-100px]" color="gold" size={250} blur={100} />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="space-y-16">
           {/* Header */}
           <FadeIn>

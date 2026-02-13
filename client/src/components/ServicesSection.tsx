@@ -21,8 +21,8 @@ export default function ServicesSection() {
   ];
 
   return (
-    <section id="services" className="relative py-24 md:py-32">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+    <section id="services" className="relative py-16 sm:py-24 md:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="space-y-16">
           {/* Header */}
           <FadeIn>

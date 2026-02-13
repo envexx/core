@@ -15,10 +15,10 @@ export default function AboutSection() {
   ];
 
   return (
-    <section id="about" className="relative py-24 md:py-32 overflow-hidden">
-      <GlowOrb className="top-0 left-[-200px]" color="cyan" size={400} blur={140} />
+    <section id="about" className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
+      <GlowOrb className="top-0 left-[-100px] hidden sm:block" color="cyan" size={300} blur={120} />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="space-y-20">
           {/* Header + Mission */}
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
@@ -36,7 +36,7 @@ export default function AboutSection() {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {t.about.subtitle[lang]}
                 </p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-4 rounded-xl glass-card">
                     <p className="font-display font-bold text-base">{t.about.vision[lang]}</p>
                     <p className="text-xs text-muted-foreground mt-1">{t.about.visionDesc[lang]}</p>
@@ -67,7 +67,7 @@ export default function AboutSection() {
 
           {/* Team & Competitive Advantage */}
           <FadeIn>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div className="p-6 md:p-8 rounded-2xl glass-card space-y-4" style={{ borderColor: "hsl(var(--glow-gold) / 0.15)" }}>
                 <p className="text-xs font-medium tracking-widest uppercase text-glow-gold">{t.about.team[lang]}</p>
                 <p className="font-display font-bold text-2xl">2 Core Members</p>

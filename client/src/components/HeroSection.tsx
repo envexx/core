@@ -26,12 +26,12 @@ export default function HeroSection() {
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
     >
       <GridPattern />
-      <GlowOrb className="top-[-200px] left-1/2 -translate-x-1/2" color="gold" size={800} blur={150} />
-      <GlowOrb className="bottom-[-100px] left-[-100px]" color="cyan" size={400} blur={120} />
-      <FloatingParticles count={15} />
+      <GlowOrb className="top-[-100px] md:top-[-200px] left-1/2 -translate-x-1/2" color="gold" size={400} blur={120} />
+      <GlowOrb className="bottom-[-50px] left-[-50px] hidden md:block" color="cyan" size={300} blur={100} />
+      <FloatingParticles count={8} />
 
       {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-12 lg:px-16 pt-32 pb-20 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16 pt-24 sm:pt-32 pb-16 sm:pb-20 text-center">
         <div className="space-y-8">
           {/* Badge */}
           <FadeIn delay={0.1}>
@@ -43,7 +43,7 @@ export default function HeroSection() {
 
           {/* Main Heading */}
           <FadeIn delay={0.2}>
-            <h1 className="font-display font-bold text-4xl md:text-6xl lg:text-[5rem] tracking-tight leading-[1.05]">
+            <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-6xl lg:text-[5rem] tracking-tight leading-[1.05]">
               {t.hero.title1[lang]}
               <br />
               <span className="gradient-text-gold">{t.hero.title2[lang]}</span>
@@ -82,13 +82,13 @@ export default function HeroSection() {
 
           {/* Stats */}
           <FadeIn delay={0.65}>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 pt-16 max-w-3xl mx-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 pt-10 sm:pt-16 max-w-3xl mx-auto">
               {stats.map((stat, index) => (
                 <div
                   key={index}
                   className="glass-card p-4 rounded-2xl space-y-1 hover:scale-[1.03] transition-transform duration-300"
                 >
-                  <div className="font-display font-bold text-2xl md:text-3xl gradient-text-gold">
+                  <div className="font-display font-bold text-xl sm:text-2xl md:text-3xl gradient-text-gold">
                     <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                   </div>
                   <div className="text-[11px] text-muted-foreground">{stat.label}</div>

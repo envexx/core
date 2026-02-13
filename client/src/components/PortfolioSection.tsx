@@ -30,8 +30,8 @@ export default function PortfolioSection() {
   const caseStudies = caseStudiesData[lang];
 
   return (
-    <section id="portfolio" className="relative py-24 md:py-32">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+    <section id="portfolio" className="relative py-16 sm:py-24 md:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
         <div className="space-y-16">
           {/* Header */}
           <FadeIn>
@@ -105,7 +105,7 @@ export default function PortfolioSection() {
           <FadeIn>
             <div className="space-y-6">
               <h3 className="font-display font-semibold text-xl md:text-2xl">{t.portfolio.caseStudyTitle[lang]}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {caseStudies.map((study, index) => (
                   <SpotlightCard key={index} className="p-5 rounded-2xl glass-card space-y-3">
                     <Badge variant="secondary" className="text-[10px]">{study.industry}</Badge>
