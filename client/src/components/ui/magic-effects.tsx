@@ -43,6 +43,7 @@ export function GlowOrb({
         width: size,
         height: size,
         filter: `blur(${blur}px)`,
+        touchAction: "auto",
       }}
     />
   );
@@ -193,11 +194,11 @@ export function FloatingParticles({ count = 20 }: { count?: number }) {
   }));
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ touchAction: "auto" }}>
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-glow-gold/20 dark:bg-glow-gold/10"
+          className="absolute rounded-full bg-glow-gold/20 dark:bg-glow-gold/10 pointer-events-none"
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,
@@ -301,6 +302,7 @@ export function SpotlightCard({
       onMouseEnter={() => setOpacity(1)}
       onMouseLeave={() => setOpacity(0)}
       className={`relative overflow-hidden ${className}`}
+      style={{ touchAction: "pan-y" }}
     >
       <div
         className="pointer-events-none absolute -inset-px transition-opacity duration-300"
