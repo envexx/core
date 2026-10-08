@@ -1,0 +1,40 @@
+/* Registry components retain the project's HSL token format and lime palette. */
+.agency-site { --ring: 85 45% 42%; --accent: 85 65% 94%; --accent-foreground: 85 28% 24%; --card: 0 0% 100%; --card-foreground: 90 9% 10%; --border: 85 18% 88%; --muted: 85 28% 96%; }
+.agency-halo-action { vertical-align: middle; flex-shrink: 0; }
+.agency-halo-action > div { width: 100%; }
+.agency-halo-action a, .agency-halo-action button { justify-content: center; color: hsl(var(--foreground)); min-height: 44px; }
+.agency-halo-action svg { vertical-align: middle; display: inline-block; margin-left: 9px; }
+.agency-halo-action .font-medium { font-size: 12px; }
+.hero-cta.agency-halo-action { pointer-events: auto; }
+.service-detail-hero .agency-halo-action { margin-top: 28px; }
+.page-project-cta > .agency-halo-action { flex-shrink: 0; }
+.simulation-halo-action button { min-height: 36px; padding: 7px 14px; }
+.simulation-halo-action .font-medium { font-size: 10px; }
+.simulation-halo-action svg { margin-left: 0; }
+.cult-directory-card, .cult-article-card { height: 100%; transition: transform .35s cubic-bezier(.22,1,.36,1); }
+.cult-directory-card:hover, .cult-article-card:hover { transform: translateY(-4px); }
+.cult-directory-card > div, .cult-article-card > div { height: 100%; }
+.cult-directory-card [data-slot="halo-card-surface"], .cult-article-card [data-slot="halo-card-surface"] { height: 100%; gap: 0; overflow: hidden; }
+.cult-directory-card .directory-card, .cult-article-card .article-card { flex: 1; border: 0; border-radius: inherit; background: transparent; transform: none; }
+.cult-directory-card:first-child { --card: 85 60% 97%; }
+.cult-directory-card .directory-top > span:last-child, .cult-directory-card .directory-card > p { color: hsl(var(--muted-foreground)); }
+.cult-directory-card .directory-tags > span { color: hsl(var(--muted-foreground)); background: hsl(var(--background) / .7); border-color: hsl(var(--border)); }
+.cult-directory-card .directory-link { color: hsl(var(--foreground)); }
+.cult-system-illustration { margin: 25px 0; padding: 20px 15px 13px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 12px; }
+.cult-system-illustration > svg { display: block; width: 100%; height: auto; max-height: 230px; }
+.cult-system-illustration figcaption { font: 8px ui-monospace, monospace; color: hsl(var(--muted-foreground)); text-align: center; margin-top: 13px; line-height: 1.6; }
+.cult-system-illustration.illustration-compact { margin: 20px 0 0; padding: 15px 12px 10px; }
+.illustration-compact > svg { max-height: 160px; }
+.service-blueprint .cult-system-illustration { border: 0; background: transparent; padding: 0; }
+.service-blueprint ol { margin-top: 19px; }
+.cult-article-card .article-cover { min-height: 235px; background: hsl(var(--muted)); padding: 20px; }
+.cult-article-card .article-cover > div { display: none; }
+.cult-article-card .article-cover > svg { display: none; }
+.cult-article-card .article-cover > .cult-system-illustration { border: 0; background: transparent; margin: 24px 0 0; padding: 0; }
+.cult-article-card .article-cover figcaption { display: none; }
+.cult-article-card .article-cover .illustration-compact > svg { max-height: 150px; }
+@media (max-width: 767px) { .simulation-halo-action button { padding: 7px 10px; } .simulation-halo-action .font-medium { font-size: 9px; } .agency-halo-action .font-medium { font-size: 11px; } .cult-system-illustration { padding: 15px 10px 12px; } .cult-system-illustration figcaption { font-size: 7px; } }
+@media (prefers-reduced-motion: reduce) { .cult-directory-card, .cult-article-card { transition: none; } .cult-directory-card:hover, .cult-article-card:hover { transform: none; } }
+.cult-directory-card .cult-system-illustration { background: transparent; padding: 12px 5px; margin: 24px 0 0; border: 0; }
+.cult-directory-card .cult-system-illustration > svg { max-height: 130px; }
+.cult-directory-card .cult-system-illustration figcaption { margin-top: 8px; }

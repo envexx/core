@@ -1,22 +1,22 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
-import ProductShowcase from "@/components/ProductShowcase";
-import PortfolioSection from "@/components/PortfolioSection";
+import AutomationShowcase from "@/components/AutomationShowcase";
 import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import BlogPreview from "@/components/BlogPreview";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="agency-site min-h-screen bg-background">
       <Navbar />
       <main>
         <HeroSection />
+        <AutomationShowcase />
         <ServicesSection />
-        <ProductShowcase />
-        <PortfolioSection />
         <AboutSection />
+        <BlogPreview />
         <ContactSection />
       </main>
       <Footer />

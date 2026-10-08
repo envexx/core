@@ -1,92 +1,15 @@
-import { DollarSign, Settings, Zap, Layers, Target, Users } from "lucide-react";
+import { ArrowUpRight, Search, Workflow, Rocket } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { FadeIn, StaggerContainer, StaggerItem, SpotlightCard, GlowOrb } from "@/components/ui/magic-effects";
 
 export default function AboutSection() {
-  const { lang, t } = useI18n();
-
-  const usps = [
-    { icon: DollarSign, title: t.about.usp1[lang], description: t.about.usp1Desc[lang] },
-    { icon: Settings, title: t.about.usp2[lang], description: t.about.usp2Desc[lang] },
-    { icon: Zap, title: t.about.usp3[lang], description: t.about.usp3Desc[lang] },
-    { icon: Layers, title: t.about.usp4[lang], description: t.about.usp4Desc[lang] },
-    { icon: Target, title: t.about.usp5[lang], description: t.about.usp5Desc[lang] },
-    { icon: Users, title: t.about.usp6[lang], description: t.about.usp6Desc[lang] },
+  const { lang } = useI18n();
+  const steps = [
+    { icon: Search, title: lang === "id" ? "Pahami bisnis Anda" : "Understand your business", description: lang === "id" ? "Kita petakan proses, hambatan, dan peluang. Tentukan tujuan yang jelas sebelum membangun." : "We map your processes, bottlenecks, and opportunities. Define clear goals before building." },
+    { icon: Workflow, title: lang === "id" ? "Rancang & bangun" : "Design & build", description: lang === "id" ? "Kami membangun agent dan alur automasi, menghubungkannya ke tools Anda, lalu menguji bersama tim." : "We build agents and automations, connect them to your tools, and test together with your team." },
+    { icon: Rocket, title: lang === "id" ? "Luncurkan & optimalkan" : "Launch & improve", description: lang === "id" ? "Mulai gunakan dalam pekerjaan nyata. Pantau hasil, beri feedback, dan terus tingkatkan alurnya." : "Put it to work. Monitor outcomes, share feedback, and keep improving the workflow." },
   ];
-
-  return (
-    <section id="about" className="relative py-16 sm:py-24 md:py-32 overflow-hidden">
-      <GlowOrb className="top-0 left-[-100px] hidden sm:block" color="cyan" size={300} blur={120} />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-12 lg:px-16">
-        <div className="space-y-20">
-          {/* Header + Mission */}
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-            <FadeIn>
-              <div className="space-y-4">
-                <p className="text-xs font-medium tracking-widest uppercase text-glow-gold">{t.about.label[lang]}</p>
-                <h2 className="font-display font-bold text-3xl md:text-4xl lg:text-5xl tracking-tight">
-                  {t.about.title1[lang]}{" "}
-                  <span className="gradient-text-gold">CORE?</span>
-                </h2>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.15}>
-              <div className="space-y-6">
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {t.about.subtitle[lang]}
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="p-4 rounded-xl glass-card">
-                    <p className="font-display font-bold text-base">{t.about.vision[lang]}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t.about.visionDesc[lang]}</p>
-                  </div>
-                  <div className="p-4 rounded-xl glass-card">
-                    <p className="font-display font-bold text-base">{t.about.mission[lang]}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t.about.missionDesc[lang]}</p>
-                  </div>
-                </div>
-              </div>
-            </FadeIn>
-          </div>
-
-          {/* USP Grid */}
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" staggerDelay={0.08}>
-            {usps.map((usp, index) => (
-              <StaggerItem key={index}>
-                <SpotlightCard className="h-full p-6 rounded-2xl glass-card hover:border-foreground/10 transition-all duration-300">
-                  <div className="w-10 h-10 rounded-xl bg-glow-gold/10 flex items-center justify-center mb-4">
-                    <usp.icon className="w-5 h-5 text-glow-gold" />
-                  </div>
-                  <h3 className="font-display font-semibold text-base mb-2">{usp.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{usp.description}</p>
-                </SpotlightCard>
-              </StaggerItem>
-            ))}
-          </StaggerContainer>
-
-          {/* Team & Competitive Advantage */}
-          <FadeIn>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="p-6 md:p-8 rounded-2xl glass-card space-y-4" style={{ borderColor: "hsl(var(--glow-gold) / 0.15)" }}>
-                <p className="text-xs font-medium tracking-widest uppercase text-glow-gold">{t.about.team[lang]}</p>
-                <p className="font-display font-bold text-2xl">2 Core Members</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t.about.teamDesc[lang]}</p>
-              </div>
-              <SpotlightCard className="p-6 md:p-8 rounded-2xl glass-card space-y-4">
-                <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">{t.about.vsSoftwareHouse[lang]}</p>
-                <p className="font-display font-semibold text-lg">{t.about.vsSHTitle[lang]}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t.about.vsSHDesc[lang]}</p>
-              </SpotlightCard>
-              <SpotlightCard className="p-6 md:p-8 rounded-2xl glass-card space-y-4">
-                <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">{t.about.vsFreelancer[lang]}</p>
-                <p className="font-display font-semibold text-lg">{t.about.vsFLTitle[lang]}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{t.about.vsFLDesc[lang]}</p>
-              </SpotlightCard>
-            </div>
-          </FadeIn>
-        </div>
-      </div>
-    </section>
-  );
+  return <section id="about" className="agency-container agency-section process-section">
+    <div className="process-intro"><div><span className="section-kicker">FROM IDEA TO IMPACT</span><h2>{lang === "id" ? <>Teknologi baru.<br />Proses yang sederhana.</> : <>New technology.<br />A simple process.</>}</h2></div><div><p>{lang === "id" ? "CORE Solution Digital adalah partner Anda dalam membangun AI agent dan AI automation. Berbasis di Batam, kami membantu bisnis mengubah pekerjaan berulang menjadi sistem yang lebih cerdas." : "CORE Solution Digital is your partner in AI agents and AI automation. Based in Batam, we help businesses turn repetitive work into smarter systems."}</p><a className="text-link" href="#contact">{lang === "id" ? "Mulai percakapan" : "Start a conversation"}<ArrowUpRight size={16} /></a></div></div>
+    <div className="process-grid">{steps.map((step, index) => <article key={index}><div className="process-step-top"><span>0{index + 1}</span><step.icon size={23} /></div><h3>{step.title}</h3><p>{step.description}</p></article>)}</div>
+  </section>;
 }
