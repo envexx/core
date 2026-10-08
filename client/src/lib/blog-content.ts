@@ -1,8 +1,10 @@
 import { copy, type LocalCopy } from "./service-content";
 type ArticleSection = { heading: LocalCopy; paragraphs: LocalCopy[]; points?: LocalCopy[]; links?: { slug: string; label: LocalCopy }[] };
-export const articles: { slug: string; category: "AI Systems" | "Automation" | "Case Studies"; title: LocalCopy; excerpt: LocalCopy; readTime: number; diagram: string[]; sections: ArticleSection[]; takeaway: LocalCopy; service: string }[] = [
+// `date` = editorial publish date (ISO 8601, YYYY-MM-DD). Single source of truth for
+// blog/SEO consumers (workers/blog-api). TODO: sesuaikan bila tanggal terbit sebenarnya berbeda.
+export const articles: { slug: string; category: "AI Systems" | "Automation" | "Case Studies"; title: LocalCopy; excerpt: LocalCopy; readTime: number; date: string; diagram: string[]; sections: ArticleSection[]; takeaway: LocalCopy; service: string }[] = [
   {
-    slug: "ai-agent-dan-workflow-automation", category: "AI Systems", readTime: 4,
+    slug: "ai-agent-dan-workflow-automation", category: "AI Systems", readTime: 4, date: "2026-08-11",
     title: copy("AI agent dan workflow automation: kapan menggunakan masing-masing?", "AI agents and workflow automation: when should you use each?"),
     excerpt: copy("Pahami peran aturan, konteks, dan tools saat merancang sistem yang benar-benar menjalankan pekerjaan.", "Understand the role of rules, context, and tools when designing systems that actually execute work."),
     diagram: ["Business event", "Rules + AI context", "Tool execution"], service: "ai-agent-systems",
@@ -16,7 +18,7 @@ export const articles: { slug: string; category: "AI Systems" | "Automation" | "
     takeaway: copy("Pilih workflow untuk urutan yang jelas, gunakan agent untuk kebutuhan interpretasi, dan satukan keduanya dengan kontrol yang dapat ditinjau tim.", "Use workflows for defined sequences, agents for interpretation, and connect both with controls your team can review."),
   },
   {
-    slug: "memilih-proses-pertama-untuk-automasi", category: "Automation", readTime: 4,
+    slug: "memilih-proses-pertama-untuk-automasi", category: "Automation", readTime: 4, date: "2026-08-25",
     title: copy("Cara memilih proses pertama untuk diotomasi", "How to choose your first process to automate"),
     excerpt: copy("Kerangka sederhana untuk memilih pilot berdasarkan masalah nyata, kesiapan data, dan hasil yang dapat diukur.", "A practical framework for choosing a pilot based on real problems, data readiness, and measurable outcomes."),
     diagram: ["Map the process", "Define a pilot", "Measure & improve"], service: "ai-strategy",
@@ -30,7 +32,7 @@ export const articles: { slug: string; category: "AI Systems" | "Automation" | "
     takeaway: copy("Pilot yang terarah menjawab satu masalah nyata, memiliki data yang siap, dan dinilai dengan ukuran keberhasilan yang disepakati sebelum dibangun.", "A focused pilot addresses one real problem, has usable data, and is evaluated against measures agreed before implementation."),
   },
   {
-    slug: "alur-invoice-dengan-approval", category: "Case Studies", readTime: 4,
+    slug: "alur-invoice-dengan-approval", category: "Case Studies", readTime: 4, date: "2026-09-08",
     title: copy("Merancang alur invoice dengan validasi dan approval", "Designing an invoice workflow with validation and approval"),
     excerpt: copy("Contoh rancangan proses dari dokumen masuk hingga draft ERP, termasuk jalur ketika nilai invoice tidak sesuai.", "An example process from incoming documents to ERP drafts, including the path for mismatched invoice amounts."),
     diagram: ["Extract invoice", "Match purchase order", "Review / ERP draft"], service: "workflow-automation",
@@ -44,7 +46,7 @@ export const articles: { slug: string; category: "AI Systems" | "Automation" | "
     takeaway: copy("Automasi invoice yang baik membuat data siap ditinjau, memperjelas exception, dan menjaga titik persetujuan sesuai kebijakan finance.", "A useful invoice workflow prepares reviewable data, makes exceptions clear, and preserves approval checkpoints aligned with finance policy."),
   },
   {
-    slug: "automasi-lead-ke-crm", category: "Case Studies", readTime: 3,
+    slug: "automasi-lead-ke-crm", category: "Case Studies", readTime: 3, date: "2026-09-22",
     title: copy("Studi alur: dari lead masuk ke CRM dan follow-up", "Workflow study: from incoming leads to CRM and follow-up"),
     excerpt: copy("Ilustrasi automasi sales dengan dua jalur: lead prioritas masuk pipeline, lead tahap awal masuk nurture.", "An illustrative sales automation with two paths: qualified leads enter the pipeline, early-stage leads enter nurture."),
     diagram: ["Capture + enrich", "Qualify lead", "CRM / Nurture"], service: "workflow-automation",
@@ -67,7 +69,7 @@ export const blogCategories = [
 ] as const;
 
 articles.unshift({
-  slug: pillarSlug, category: "Automation", readTime: 6, service: "workflow-automation",
+  slug: pillarSlug, category: "Automation", readTime: 6, date: "2026-08-04", service: "workflow-automation",
   title: copy("Panduan AI Automation untuk bisnis: dari proses manual ke sistem terhubung", "AI automation for business: from manual processes to connected systems"),
   excerpt: copy("Mulai dari memilih proses, memahami peran AI, hingga merancang automasi sales dan invoice dengan kontrol tim.", "From choosing a process and understanding AI to designing sales and invoice automation with team controls."),
   diagram: ["Choose a process", "Connect data & apps", "Review & improve"],
