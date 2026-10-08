@@ -1,0 +1,50 @@
+/* Original project diagram; the requested remote registry currently returns 404. */
+.routing-workflow { background: radial-gradient(hsl(var(--border) / .65) .7px, transparent .7px) 0 0 / 14px 14px; }
+.routing-workflow .simple-flow-steps { padding: 22px 18px; gap: 27px; align-items: center; }
+.routing-workflow .routing-step { background: hsl(var(--card)); padding: 16px 14px 20px; border: 1px solid hsl(var(--border)); border-radius: 14px; box-shadow: 0 3px 8px hsl(var(--foreground) / .025); align-self: stretch; }
+.routing-workflow .simple-step-top { margin-bottom: 13px; }
+.routing-workflow .simple-step-icon { background: hsl(var(--muted)); }
+.routing-workflow .simple-flow-steps h3 { font-size: 13px; }
+.routing-workflow .simple-flow-steps p { font-size: 11px; line-height: 1.7; }
+.routing-step-progress { position: absolute; left: 14px; right: 14px; bottom: 9px; height: 2px; border-radius: 4px; background: hsl(var(--border)); overflow: hidden; }
+.routing-step-progress::after { content: ""; display: block; height: 100%; width: 100%; transform: scaleX(0); transform-origin: left; background: hsl(var(--ring)); }
+.routing-link { position: absolute; left: 100%; top: 35px; width: 28px; height: 2px; background: hsl(var(--border)); z-index: 1; }
+.routing-link svg { position: absolute; right: -1px; top: -5px; color: hsl(var(--muted-foreground)); }
+.routing-particle { position: absolute; left: 0; top: -2px; height: 6px; width: 6px; border-radius: 50%; background: hsl(var(--ring)); box-shadow: 0 0 9px 2px hsl(var(--primary) / .8); opacity: 0; }
+.routing-workflow .simple-flow-result { padding: 20px 16px; background: hsl(var(--muted) / .8); }
+.routing-workflow .simple-flow-result ul { gap: 10px; margin-top: 12px; }
+.routing-workflow .routing-result { position: relative; padding: 11px 10px; background: hsl(var(--card)); border: 1px solid hsl(var(--border)); border-radius: 10px; font-size: 11px; line-height: 1.65; }
+.routing-result-icon { display: grid; place-items: center; flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; background: hsl(var(--muted)); }
+.routing-workflow .routing-result-icon svg { margin-top: 0; }
+.routing-workflow[data-playing="true"] .routing-step { animation: routing-node-light 7s ease-in-out infinite; }
+.routing-workflow[data-playing="true"] .routing-step-progress::after { animation: routing-progress 7s ease-in-out infinite; }
+.routing-workflow[data-playing="true"] .routing-step-1, .routing-workflow[data-playing="true"] .routing-step-1 .routing-step-progress::after { animation-delay: 1.25s; }
+.routing-workflow[data-playing="true"] .routing-step-2, .routing-workflow[data-playing="true"] .routing-step-2 .routing-step-progress::after { animation-delay: 2.5s; }
+.routing-workflow[data-playing="true"] .routing-particle { animation: routing-packet 7s linear infinite; }
+.routing-workflow[data-playing="true"] .routing-link-0 .routing-particle { animation-delay: .85s; }
+.routing-workflow[data-playing="true"] .routing-link-1 .routing-particle { animation-delay: 2.1s; }
+.routing-workflow[data-playing="true"] .routing-result { animation: routing-result-light 7s ease-in-out infinite; animation-delay: 3.7s; }
+.routing-workflow[data-playing="true"] .routing-result-1 { animation-delay: 4.65s; }
+@keyframes routing-node-light { 0%, 25%, 100% { border-color: hsl(var(--border)); box-shadow: 0 3px 8px hsl(var(--foreground) / .025); background: hsl(var(--card)); } 7%, 17% { border-color: hsl(var(--ring)); box-shadow: 0 0 0 3px hsl(var(--primary) / .27), 0 5px 15px hsl(var(--ring) / .12); background: hsl(var(--accent)); } }
+@keyframes routing-progress { 0% { transform: scaleX(0); opacity: 1; } 17%, 23% { transform: scaleX(1); opacity: 1; } 26%, 100% { transform: scaleX(1); opacity: 0; } }
+@keyframes routing-packet { 0% { transform: translateX(0); opacity: 0; } 1% { opacity: 1; } 8% { transform: translateX(23px); opacity: 1; } 10%, 100% { transform: translateX(23px); opacity: 0; } }
+@keyframes routing-result-light { 0%, 22%, 100% { border-color: hsl(var(--border)); background: hsl(var(--card)); } 5%, 15% { border-color: hsl(var(--ring)); background: hsl(var(--accent)); box-shadow: 0 0 0 2px hsl(var(--primary) / .25); } }
+@media (max-width: 900px) { .routing-workflow .simple-flow-result ul { gap: 12px; } }
+@media (max-width: 600px) { .routing-workflow .simple-flow-steps { gap: 18px; padding: 18px 14px; } .routing-workflow .routing-step { padding: 14px 14px 20px 58px; } .routing-workflow .simple-step-icon { left: 12px; top: 13px; width: 32px; height: 32px; } .routing-workflow .simple-step-top { margin: 0; } .routing-workflow .routing-link { left: 27px; top: 100%; width: 2px; height: 19px; } .routing-link svg { transform: rotate(90deg); top: auto; bottom: -1px; left: -5px; } .routing-particle { left: -2px; top: 0; } @keyframes routing-packet { 0% { transform: translateY(0); opacity: 0; } 1% { opacity: 1; } 8% { transform: translateY(14px); opacity: 1; } 10%, 100% { transform: translateY(14px); opacity: 0; } } }
+@media (prefers-reduced-motion: reduce) { .routing-workflow *, .routing-workflow *::after { animation: none !important; } }
+.routing-workflow-compact { grid-template-columns: 1fr; margin-top: 25px; border: 1px solid hsl(var(--border)); border-radius: 14px; overflow: hidden; }
+.routing-workflow-compact .simple-flow-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; padding: 18px 12px; }
+.routing-workflow-compact .routing-step { padding: 12px 8px 18px; text-align: center; }
+.routing-workflow-compact .simple-step-top { display: flex; justify-content: center; margin-bottom: 10px; }
+.routing-workflow-compact .simple-step-icon { position: static; width: 30px; height: 30px; }
+.routing-workflow-compact .simple-step-number, .routing-workflow-compact .simple-flow-steps p { display: none; }
+.routing-workflow-compact .simple-flow-steps h3 { font-size: 11px; margin: 0; line-height: 1.5; }
+.routing-workflow-compact .routing-link { top: 26px; left: 100%; width: 16px; height: 2px; }
+.routing-workflow-compact .routing-link svg { transform: none; left: auto; right: -1px; top: -5px; bottom: auto; }
+.routing-workflow-compact .routing-particle { left: 0; top: -2px; }
+.routing-workflow-compact[data-playing="true"] .routing-particle { animation-name: routing-compact-packet; }
+.routing-workflow-compact .simple-flow-result { border-left: 0; border-top: 1px solid hsl(var(--border)); padding: 13px 15px; }
+.routing-workflow-compact .simple-flow-result ul { grid-template-columns: 1fr; margin-top: 7px; }
+.routing-workflow-compact .routing-result { background: transparent; border: 0; padding: 0; box-shadow: none; }
+.routing-workflow-compact[data-playing="true"] .routing-result { animation: none; }
+@keyframes routing-compact-packet { 0% { transform: translateX(0); opacity: 0; } 1% { opacity: 1; } 8% { transform: translateX(11px); opacity: 1; } 10%, 100% { transform: translateX(11px); opacity: 0; } }

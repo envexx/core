@@ -1,0 +1,24 @@
+# Cloudflare Worker config for the CORE Solution Digital blog + SEO API.
+# No domain or secret is hardcoded in source: everything comes from [vars]
+# or `wrangler secret put`. Override per-environment as needed.
+
+name = "core-solution-blog-api"
+main = "src/index.ts"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+[vars]
+# Canonical origin used for absolute URLs (canonical, OpenGraph, JSON-LD, sitemap).
+# Must match the host actually served by the site.
+SITE_URL = "https://coresolution.digital"
+SITE_NAME = "CORE Solution Digital"
+SITE_LOCALE = "id_ID"
+# Default social preview image, relative to SITE_URL. Set to "" to omit.
+OG_IMAGE_PATH = "/images/core-agent-workspace.png"
+# Optional fallback lastmod (YYYY-MM-DD) for pages without their own date.
+SITE_LAST_MODIFIED = "2026-10-09"
+# Comma-separated list of allowed browser origins (no wildcards).
+CORS_ORIGINS = "https://coresolution.digital,https://www.coresolution.digital"
+
+# Local dev only: copy `.dev.vars.example` to `.dev.vars` to override vars/secrets.
+# Production secrets, if any are added later, belong in `wrangler secret put`.

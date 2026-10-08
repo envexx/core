@@ -1,21 +1,9 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
+import ContentLayout from "@/components/ContentLayout";
 
 export default function NotFound() {
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md mx-4">
-        <CardContent className="pt-6">
-          <div className="flex mb-4 gap-2">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-            <h1 className="text-2xl font-bold text-gray-900">404 Page Not Found</h1>
-          </div>
-
-          <p className="mt-4 text-sm text-gray-600">
-            Did you forget to add the page to the router?
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const { lang } = useI18n();
+  const title = lang === "id" ? "Halaman tidak ditemukan" : "Page not found";
+  return <ContentLayout title={title} description={title} path={window.location.pathname}><section className="agency-container page-intro missing-page"><span className="section-kicker">404 / PAGE NOT FOUND</span><h1>{title}.</h1><p>{lang === "id" ? "Tautan ini mungkin sudah berubah. Jelajahi layanan dan artikel kami, atau kembali ke beranda." : "This link may have changed. Explore our services and articles, or return home."}</p><div><a className="lime-button" href="/">{lang === "id" ? "Kembali ke beranda" : "Return home"}<ArrowUpRight size={16} /></a><a className="text-link" href="/services">{lang === "id" ? "Lihat layanan" : "View services"}<ArrowUpRight size={16} /></a><a className="text-link" href="/blog">Blog<ArrowUpRight size={16} /></a></div></section></ContentLayout>;
 }

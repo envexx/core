@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 export default {
   darkMode: ["class"],
@@ -92,8 +93,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "var(--font-sans)"],
-        display: ["Outfit", "var(--font-sans)"],
+        sans: ["Geist", "var(--font-sans)"],
+        display: ["Geist", "var(--font-sans)"],
         tech: ["Space Grotesk", "var(--font-sans)"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
@@ -132,5 +133,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography"), plugin(({ addVariant }) => { addVariant("fine-hover", "@media (hover: hover) and (pointer: fine)"); })],
 } satisfies Config;

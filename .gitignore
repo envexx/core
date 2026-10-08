@@ -4,4 +4,5 @@ server/public
 vite.config.ts.*
 *.tar.gz
 dist/
-client/dist/
+client/dist/# Artefak verifikasi lokal (playwright-cli)
+.playwright-cli/

@@ -1,0 +1,3 @@
+# Copy to `.dev.vars` for local `wrangler dev` overrides. Never commit `.dev.vars`.
+SITE_URL=http://localhost:8787
+CORS_ORIGINS=http://localhost:8787,http://localhost:5173,http://localhost:5000

@@ -1,120 +1,51 @@
-import { ArrowRight, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { TextAnimate } from "@/components/ui/text-animate";
+import { ArrowUpRight, Bot, Workflow, MessageSquare, Database, Sparkles } from "lucide-react";
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "motion/react";
+import { useRef, type PointerEvent } from "react";
+import HeroEnergy from "./HeroEnergy";
 import { useI18n } from "@/lib/i18n";
-import { GridPattern, GlowOrb, FadeIn, FloatingParticles, AnimatedCounter, Marquee } from "@/components/ui/magic-effects";
+import { AgencyAction } from "@/components/ui/agency-action";
+import { BrandMark } from "@/components/ui/brand-mark";
+import { InteractiveGridPattern } from "@/components/ui/interactive-grid-pattern";
 
 export default function HeroSection() {
-  const { lang, t } = useI18n();
+  const { lang } = useI18n();
+  const heroRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const x = useSpring(pointerX, { stiffness: 70, damping: 25 });
+  const y = useSpring(pointerY, { stiffness: 70, damping: 25 });
+  const gridX = useTransform(x, value => value * -0.2);
+  const gridY = useTransform(y, value => value * -0.2);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  function moveBackground(event: PointerEvent<HTMLElement>) {
+    if (reducedMotion || event.pointerType === "touch") return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    pointerX.set((event.clientX - bounds.left - bounds.width / 2) * 0.3);
+    pointerY.set((event.clientY - bounds.top - bounds.height / 2) * 0.3);
+  }
 
-  const stats = [
-    { value: 8, suffix: "+", label: t.hero.stat1[lang] },
-    { value: 4, suffix: "+", label: t.hero.stat2[lang] },
-    { value: 500, suffix: "+", label: t.hero.stat3[lang] },
-    { value: 70, suffix: "%", label: t.hero.stat4[lang] },
-  ];
-
-  return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background"
-    >
-      <GridPattern />
-      <GlowOrb className="top-[-100px] md:top-[-200px] left-1/2 -translate-x-1/2" color="gold" size={400} blur={120} />
-      <GlowOrb className="bottom-[-50px] left-[-50px] hidden md:block" color="cyan" size={300} blur={100} />
-      <FloatingParticles count={8} />
-
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-5 sm:px-6 md:px-12 lg:px-16 pt-24 sm:pt-32 pb-12 sm:pb-20 text-center">
-        <div className="space-y-6 sm:space-y-8">
-          {/* Badge */}
-          <FadeIn delay={0.1}>
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 glass-card rounded-full text-[10px] sm:text-[11px] font-medium tracking-widest uppercase text-foreground/60">
-              <div className="w-1.5 h-1.5 rounded-full bg-glow-gold animate-pulse" />
-              {t.hero.badge[lang]}
-            </div>
-          </FadeIn>
-
-          {/* Main Heading */}
-          <FadeIn delay={0.2}>
-            <h1 className="font-display font-bold text-3xl sm:text-4xl md:text-6xl lg:text-[5rem] tracking-tight leading-[1.05]">
-              {t.hero.title1[lang]}
-              <br />
-              <span className="gradient-text-gold">{t.hero.title2[lang]}</span>
-            </h1>
-          </FadeIn>
-
-          {/* Subtitle */}
-          <FadeIn delay={0.35}>
-            <p className="max-w-[90%] sm:max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
-              {t.hero.subtitle[lang]}
-            </p>
-          </FadeIn>
-
-          {/* CTA Buttons */}
-          <FadeIn delay={0.5}>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 w-full">
-              <Button
-                size="lg"
-                onClick={() => scrollToSection("contact")}
-                className="group w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm font-semibold transition-all duration-300 hover:scale-[1.02]"
-              >
-                {t.hero.ctaPrimary[lang]}
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => scrollToSection("products")}
-                className="w-full sm:w-auto px-6 sm:px-8 py-5 sm:py-6 text-sm font-semibold glass-card hover:scale-[1.02] transition-all duration-300"
-              >
-                <Play className="mr-2 w-4 h-4" />
-                {t.hero.ctaSecondary[lang]}
-              </Button>
-            </div>
-          </FadeIn>
-
-          {/* Stats */}
-          <FadeIn delay={0.65}>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 pt-8 sm:pt-16 w-full">
-              {stats.map((stat, index) => (
-                <div
-                  key={index}
-                  className="glass-card p-3 sm:p-4 rounded-xl sm:rounded-2xl space-y-0.5 sm:space-y-1 hover:scale-[1.03] transition-transform duration-300 overflow-hidden"
-                >
-                  <div className="font-display font-bold text-lg sm:text-2xl md:text-3xl gradient-text-gold">
-                    <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                  </div>
-                  <div className="text-[10px] sm:text-[11px] text-muted-foreground truncate">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </FadeIn>
-
-          {/* Tech Marquee */}
-          <FadeIn delay={0.8}>
-            <div className="pt-4 sm:pt-8">
-              <Marquee speed={30} className="opacity-40">
-                {["Next.js", "React", "Node.js", "PostgreSQL", "Android", "TypeScript", "Tailwind CSS", "Prisma"].map((tech) => (
-                  <span key={tech} className="text-xs font-medium text-muted-foreground whitespace-nowrap flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-glow-gold" />
-                    {tech}
-                  </span>
-                ))}
-              </Marquee>
-            </div>
-          </FadeIn>
-        </div>
-      </div>
-
-      {/* Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-10" />
-    </section>
-  );
+  return <section ref={heroRef} id="hero" className="agency-hero" onPointerMove={moveBackground} onPointerLeave={() => { pointerX.set(0); pointerY.set(0); }}>
+    <motion.div className="hero-grid-layer" style={{ x: gridX, y: gridY }}><InteractiveGridPattern /></motion.div>
+    <motion.div className="hero-halo" style={{ x, y }} aria-hidden="true" />
+    <HeroEnergy heroRef={heroRef} />
+    <div className="hero-orbits" aria-hidden="true">
+      <span className="orbit-icon orbit-one"><Workflow size={19} /></span>
+      <span className="orbit-icon orbit-two"><MessageSquare size={18} /></span>
+      <span className="orbit-icon orbit-three"><Database size={17} /></span>
+      <span className="orbit-icon orbit-four"><Bot size={20} /></span>
+      <span className="orbit-icon orbit-five"><Sparkles size={17} /></span>
+    </div>
+    <div className="hero-content agency-container">
+      <div className="hero-symbol-anchor"><div className="hero-symbol"><BrandMark /></div></div>
+      <p className="hero-eyebrow"><span />AI AGENT & AUTOMATION AGENCY</p>
+      <h1><TextAnimate text={lang === "id" ? "Kerja lebih cerdas.\nTumbuh bersama AI." : "Work smarter.\nGrow with AI."} /></h1>
+      <p className="hero-description">{lang === "id" ? "Kami membangun sistem AI yang menghubungkan data, mengambil keputusan, dan menjalankan proses bisnis. Dari sales hingga operasional, buat pekerjaan bergerak otomatis." : "We build AI systems that connect data, make decisions, and run business processes. From sales to operations, put work in motion automatically."}</p>
+      <AgencyAction className="hero-cta" href="#contact">{lang === "id" ? "Bangun solusi AI Anda" : "Build your AI solution"}<ArrowUpRight size={17} /></AgencyAction>
+      <a className="hero-secondary" href="#solutions">{lang === "id" ? "Jelajahi cara kerjanya" : "Explore how it works"}<span>↓</span></a>
+    </div>
+    <div className="hero-bottom-fade" aria-hidden="true" />
+  </section>;
 }
+

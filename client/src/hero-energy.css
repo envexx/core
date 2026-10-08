@@ -1,0 +1,17 @@
+.hero-energy { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: visible; }
+.hero-energy-track { fill: none; stroke: hsl(var(--ring) / .24); stroke-width: .85; stroke-linecap: round; }
+.hero-energy-beam { fill: none; stroke-width: 1.65; stroke-linecap: round; filter: blur(.3px); }
+.hero-energy-aura { fill: none; stroke-width: 5; filter: blur(2.5px); opacity: .35; }
+.hero-orbits .orbit-two { top: 69px; right: 28%; }
+.hero-orbits .orbit-four { top: 230px; }
+.hero-orbits { z-index: 1; }
+.hero-content { position: relative; z-index: 2; }
+.hero-symbol-anchor { width: 62px; height: 62px; margin: 0 auto 25px; }
+.hero-symbol-anchor .hero-symbol { width: 100%; height: 100%; margin: 0; transform: perspective(450px) translate3d(calc(var(--energy-x, 0) * 1px), calc(var(--energy-y, 0) * 1px), 0) rotateX(calc(var(--energy-rx, 0) * 1deg)) rotateY(calc(var(--energy-ry, 0) * 1deg)) rotateZ(calc(-6deg + var(--energy-rz, 0) * 1deg)); box-shadow: 0 0 calc(12px + var(--energy-charge, 0) * 16px) hsl(var(--ring) / calc(.08 + var(--energy-charge, 0) * .13)); }
+.nav-halo-cta a { min-height: 39px; padding: 10px 16px; }
+.nav-halo-cta .font-medium { font-size: 11px; }
+.nav-halo-cta svg { margin-left: 13px; }
+@media (max-width: 767px) { .nav-halo-cta a { min-height: 36px; padding: 9px 11px; } .nav-halo-cta .font-medium { font-size: 10px; } .nav-halo-cta svg { margin-left: 8px; } }
+@media (max-width: 374px) { .nav-halo-cta { display: none; } }
+@media (max-width: 767px) { .hero-symbol-anchor { width: 55px; height: 55px; margin-bottom: 24px; } .hero-orbits .orbit-two { top: 50px; right: 12%; } .hero-orbits .orbit-four { top: 250px; } }
+@media (prefers-reduced-motion: reduce) { .hero-energy-beam, .hero-energy-aura { display: none; } .hero-symbol-anchor .hero-symbol { transform: rotate(-6deg); } }
