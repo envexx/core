@@ -6,12 +6,16 @@ import AboutSection from "@/components/AboutSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import BlogPreview from "@/components/BlogPreview";
+import { useRef } from "react";
+import { usePageReveals } from "@/hooks/use-page-reveals";
 
 export default function Home() {
+  const mainRef = useRef<HTMLElement>(null);
+  usePageReveals(mainRef);
   return (
     <div className="agency-site min-h-screen bg-background">
       <Navbar />
-      <main>
+      <main ref={mainRef}>
         <HeroSection />
         <AutomationShowcase />
         <ServicesSection />

@@ -17,11 +17,12 @@ export default function HeroEnergy({ heroRef }: { heroRef: RefObject<HTMLElement
   }, []);
   const visible = useInView(heroRef, { amount: 0.1 });
   const [geometry, setGeometry] = useState<Geometry>({ width: 1, height: 1, paths: [], trunks: [] });
+  const liveGeometry = useRef(geometry);
   useEffect(() => {
     const hero = heroRef.current;
     const logo = hero?.querySelector<HTMLElement>(".hero-symbol-anchor");
     if (!hero || !logo) return;
-    const measure = () => {
+    const measure = (live = false) => {
       const bounds = hero.getBoundingClientRect();
       const logoBounds = logo.getBoundingClientRect();
       const centerX = logoBounds.left + logoBounds.width / 2 - bounds.left;
@@ -48,12 +49,26 @@ export default function HeroEnergy({ heroRef }: { heroRef: RefObject<HTMLElement
           ys: [...samples.map(t => cubic(startY, controlY, endY, endY, t)), ...Array(12).fill(centerY)],
         }];
       });
-      setGeometry({ width: bounds.width, height: bounds.height, paths, trunks: [-1, 1].map(side => `M ${centerX + side * (logoBounds.width / 2 + 22)} ${centerY} L ${centerX} ${centerY}`) });
+      const next = { width: bounds.width, height: bounds.height, paths, trunks: [-1, 1].map(side => `M ${centerX + side * (logoBounds.width / 2 + 22)} ${centerY} L ${centerX} ${centerY}`) };
+      liveGeometry.current = next;
+      if (!live) setGeometry(next);
+      else {
+        const svg = svgRef.current;
+        svg?.querySelectorAll(".hero-energy-trunk").forEach((element, i) => element.setAttribute("d", next.trunks[i]));
+        svg?.querySelectorAll(".hero-energy-branch").forEach((element, i) => element.setAttribute("d", paths[i].track));
+        svg?.querySelectorAll(".hero-energy-pulse").forEach((group, i) => group.querySelectorAll("path").forEach(element => element.setAttribute("d", paths[i].d)));
+      }
     };
-    const observer = new ResizeObserver(measure);
+    const observer = new ResizeObserver(() => measure());
     observer.observe(hero); observer.observe(logo);
     measure();
-    return () => observer.disconnect();
+    let pending = 0;
+    const move = () => {
+      if (pending) return;
+      pending = requestAnimationFrame(() => { pending = 0; measure(true); });
+    };
+    hero.addEventListener("hero-magnetic-update", move);
+    return () => { observer.disconnect(); cancelAnimationFrame(pending); hero.removeEventListener("hero-magnetic-update", move); };
   }, [heroRef]);
   useEffect(() => {
     const svg = svgRef.current;
@@ -72,9 +87,10 @@ export default function HeroEnergy({ heroRef }: { heroRef: RefObject<HTMLElement
     const slot = 2.8, travel = 2.15;
     const tick = (now: number) => {
       const time = Math.max(0, (now - started) / 1000);
-      const index = Math.floor(time / slot) % geometry.paths.length;
+      const paths = liveGeometry.current.paths;
+      const index = Math.floor(time / slot) % paths.length;
       const local = time % slot;
-      const path = geometry.paths[index];
+      const path = paths[index];
       if (svg.dataset.source !== path.source) svg.dataset.source = path.source;
       const progress = Math.min(local / travel, 1);
       const sample = progress * (path.xs.length - 1);
@@ -108,7 +124,7 @@ export default function HeroEnergy({ heroRef }: { heroRef: RefObject<HTMLElement
 
     </radialGradient>)}</defs>
     {geometry.trunks.map((path, index) => <path key={`trunk-${index}`} className="hero-energy-track hero-energy-trunk" d={path} />)}
-    {geometry.paths.map((path, index) => <path key={`branch-${index}`} className="hero-energy-track" d={path.track} />)}
+    {geometry.paths.map((path, index) => <path key={`branch-${index}`} className="hero-energy-track hero-energy-branch" d={path.track} />)}
     {geometry.paths.map((path, index) => <g className="hero-energy-pulse" key={index} style={{ opacity: 0 }}>
       <path className="hero-energy-aura" d={path.d} stroke={`url(#${id}-energy-${index})`} />
       <path className="hero-energy-beam" d={path.d} stroke={`url(#${id}-energy-${index})`} />

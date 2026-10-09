@@ -6,6 +6,10 @@
 .hero-orbits .orbit-four { top: 230px; }
 .hero-orbits { z-index: 1; }
 .hero-content { position: relative; z-index: 2; }
+.hero-grid-layer { pointer-events: none; }
+.hero-grid-layer .static-grid { inset: 0; width: 100%; height: 100%; }
+.hero-heading-word { display: inline-block; }
+.hero-symbol .brand-mark { width: 40px; height: 40px; }
 .hero-symbol-anchor { width: 62px; height: 62px; margin: 0 auto 25px; }
 .hero-symbol-anchor .hero-symbol { width: 100%; height: 100%; margin: 0; transform: perspective(450px) translate3d(calc(var(--energy-x, 0) * 1px), calc(var(--energy-y, 0) * 1px), 0) rotateX(calc(var(--energy-rx, 0) * 1deg)) rotateY(calc(var(--energy-ry, 0) * 1deg)) rotateZ(calc(-6deg + var(--energy-rz, 0) * 1deg)); box-shadow: 0 0 calc(12px + var(--energy-charge, 0) * 16px) hsl(var(--ring) / calc(.08 + var(--energy-charge, 0) * .13)); }
 .nav-halo-cta a { min-height: 39px; padding: 10px 16px; }
