@@ -1,11 +1,12 @@
-import { Switch, Route } from "wouter";
-import { lazy, Suspense } from "react";
+import { Switch, Route, useLocation } from "wouter";
+import { lazy, Suspense, useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/lib/theme";
 import { I18nProvider } from "@/lib/i18n";
+import { trackPageview } from "@/lib/analytics";
 import Home from "@/pages/Home";
 import NotFound from "@/pages/not-found";
 const Services = lazy(() => import("@/pages/Services"));
@@ -13,6 +14,16 @@ const ServiceDetail = lazy(() => import("@/pages/Services").then(module => ({ de
 const Blog = lazy(() => import("@/pages/Blog"));
 const BlogCategory = lazy(() => import("@/pages/Blog").then(module => ({ default: module.BlogCategory })));
 const BlogArticle = lazy(() => import("@/pages/Blog").then(module => ({ default: module.BlogArticle })));
+
+function RouteAnalytics() {
+  const [location] = useLocation();
+  useEffect(() => {
+    // Defer past the page's own effect so document.title is already set.
+    const timer = window.setTimeout(() => trackPageview(location), 300);
+    return () => window.clearTimeout(timer);
+  }, [location]);
+  return null;
+}
 
 function Router() {
   return (
@@ -35,6 +46,7 @@ function App() {
         <I18nProvider>
           <TooltipProvider>
             <Toaster />
+            <RouteAnalytics />
             <Router />
           </TooltipProvider>
         </I18nProvider>
