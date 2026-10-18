@@ -170,7 +170,7 @@ export default function ProductShowcase() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
                     className="transition-all duration-300"
-                    onClick={() => window.open("https://wa.me/6282292195682?text=Halo, saya tertarik dengan " + current.name, "_blank")}
+                    onClick={() => window.open("https://wa.me/6285121990126?text=Halo, saya tertarik dengan " + current.name, "_blank")}
                   >
                     {t.products.scheduleDemo[lang]}
                   </Button>
