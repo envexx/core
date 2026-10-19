@@ -1,7 +1,8 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight, Clock } from "lucide-react";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Language } from "@/lib/i18n";
 import type { ArticleView } from "@/lib/blog-api";
+import type { articles } from "@/lib/blog-content";
 import SystemIllustration from "./SystemIllustration";
 import {
   CutoutCard,
@@ -17,6 +18,20 @@ import {
   useCutoutContentStaggerVariants,
 } from "./ui/cutout-card";
 
+type TileArticleInput =
+  | ArticleView
+  | (typeof articles)[number];
+
+function extractTitle(item: TileArticleInput, lang: Language): string {
+  if (typeof item.title === "string") return item.title;
+  return item.title[lang] || item.title.id;
+}
+
+function extractExcerpt(item: TileArticleInput, lang: Language): string {
+  if (typeof item.excerpt === "string") return item.excerpt;
+  return item.excerpt[lang] || item.excerpt.id;
+}
+
 export function articleCategory(category: string, lang: string) {
   return category === "Case Studies"
     ? lang === "id"
@@ -25,27 +40,31 @@ export function articleCategory(category: string, lang: string) {
     : category;
 }
 
-export default function ArticleTile({ article }: { article: ArticleView }) {
+export default function ArticleTile({ article }: { article: TileArticleInput }) {
   const { lang } = useI18n();
   const stagger = useCutoutContentStaggerVariants();
   const reducedMotion = useReducedMotion();
   const study = article.category === "Case Studies";
+  const title = extractTitle(article, lang);
+  const excerpt = extractExcerpt(article, lang);
+  const imageUrl = "imageUrl" in article ? article.imageUrl : undefined;
+  const imageAlt = "imageAlt" in article ? article.imageAlt : undefined;
 
   return (
     <CutoutCard className={`${cutoutCardSurfaceClassName} core-cutout-card`}>
       <a
         href={`/blog/${article.slug}`}
         className="cutout-article-link"
-        aria-label={article.title}
+        aria-label={title}
       >
         <CutoutCardMedia className="core-cutout-media bg-muted">
           <div className="cutout-media-heading" aria-hidden="true">
             CORE / FIELD NOTES
           </div>
-          {article.imageUrl ? (
+          {imageUrl ? (
             <img
-              src={article.imageUrl}
-              alt={article.imageAlt || article.title}
+              src={imageUrl}
+              alt={imageAlt || title}
               loading="lazy"
               decoding="async"
               className="absolute inset-0 size-full object-cover"
@@ -106,13 +125,13 @@ export default function ArticleTile({ article }: { article: ArticleView }) {
               variants={stagger.item}
               className="text-card-foreground"
             >
-              {article.title}
+              {title}
             </motion.h2>
             <motion.p
               variants={stagger.item}
               className="text-muted-foreground"
             >
-              {article.excerpt}
+              {excerpt}
             </motion.p>
             <motion.div
               variants={stagger.item}
