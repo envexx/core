@@ -11,16 +11,28 @@ yang disimpan di **Cloudflare R2**.
 | --- | --- | --- | --- |
 | `GET` | `/api/health` | Publik | Status service, ketersediaan binding R2 & auth |
 | `GET` | `/api/blog` | Publik | Daftar artikel gabungan (statis + dinamis R2) — `?lang=id\|en` |
-| `GET` | `/api/blog/:slug` | Publik | Detail artikel lengkap (statis/dinamis) |
-| `POST` | `/api/blog` | **Bearer** | Buat artikel dinamis baru (JSON) |
-| `PUT` | `/api/blog/:slug` | **Bearer** | Perbarui artikel dinamis (JSON) |
+| `GET` | `/api/blog/:slug` | Publik | Detail artikel lengkap (statis/dinamis, termasuk field `sources`) |
+| `POST` | `/api/blog` | **Bearer** | Buat artikel dinamis baru (JSON, mendukung opsional `sources`) |
+| `PUT` | `/api/blog/:slug` | **Bearer** | Perbarui artikel dinamis (JSON, mendukung opsional `sources`) |
 | `DELETE` | `/api/blog/:slug` | **Bearer** | Hapus artikel dinamis dari R2 |
 | `POST` | `/api/blog/:slug/image` | **Bearer** | Upload gambar artikel (maks 5MB, binary/multipart) |
 | `GET` | `/uploads/:key` | Publik | Sajikan gambar publik dari R2 (hanya key berawalan `images/`) |
 | `GET` | `/api/seo/:slug` | Publik | Metadata SEO untuk artikel |
 | `GET` | `/api/seo?path=/...` | Publik | Metadata SEO halaman (termasuk artikel dinamis) |
-| `GET` | `/sitemap.xml` | Publik | Sitemap dinamis (termasuk artikel dinamis) |
+| `GET` | `/sitemap.xml` | Publik | Sitemap dinamis (termasuk artikel dinamis dari R2, dirutekan via `wrangler.toml`) |
 | `GET` | `/robots.txt` | Publik | robots.txt SEO-friendly |
+
+---
+
+## Rute Sitemap Dinamis (`/sitemap.xml`)
+
+Rute `coresolution.digital/sitemap.xml` diarahkan langsung ke Worker via konfigurasi `wrangler.toml`. Worker menghasilkan XML sitemap lengkap yang memuat:
+- Halaman inti (`/`, `/services`, `/blog`, dsb.)
+- Rute kategori blog
+- Semua halaman layanan individual
+- Semua artikel statis dan artikel dinamis yang tersimpan di R2 (dengan `<lastmod>` terotomatisasi)
+
+> **Catatan:** File statis `client/public/sitemap.xml` tetap dipertahankan sebagai fallback build client.
 
 ---
 
@@ -115,7 +127,7 @@ Respons (`201 Created`):
 ---
 
 ### 2. Membuat Artikel Baru (`POST /api/blog`)
-Semua teks bilingual `{ "id": "...", "en": "..." }`.
+Semua teks bilingual `{ "id": "...", "en": "..." }`. Field `sources` opsional (maksimal 10 item).
 
 ```bash
 curl -X POST "https://coresolution.digital/api/blog" \
@@ -159,6 +171,14 @@ curl -X POST "https://coresolution.digital/api/blog" \
             "en": "Define human escalation."
           }
         ]
+      }
+    ],
+    "sources": [
+      {
+        "title": "Reuters AI Support Benchmark",
+        "url": "https://www.reuters.com/technology/ai-support",
+        "publisher": "Reuters",
+        "date": "2026-10-18"
       }
     ],
     "takeaway": {
