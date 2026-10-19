@@ -19,6 +19,14 @@ OG_IMAGE_PATH = "/images/core-agent-workspace.png"
 SITE_LAST_MODIFIED = "2026-10-09"
 # Comma-separated list of allowed browser origins (no wildcards).
 CORS_ORIGINS = "https://coresolution.digital,https://www.coresolution.digital"
+# Optional public URL base for R2 bucket assets (leave empty to serve via worker /uploads/*).
+R2_PUBLIC_URL = ""
+
+# R2 bucket binding for blog images and dynamic article metadata storage.
+# Setup: npx wrangler r2 bucket create core-solution-blog
+[[r2_buckets]]
+binding = "BLOG_BUCKET"
+bucket_name = "core-solution-blog"
 
 # Local dev only: copy `.dev.vars.example` to `.dev.vars` to override vars/secrets.
-# Production secrets, if any are added later, belong in `wrangler secret put`.
+# Production secrets belong in `wrangler secret put BLOG_API_TOKEN`.
