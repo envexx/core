@@ -2,6 +2,13 @@ import type { Language } from "./i18n";
 import { articles } from "./blog-content";
 import { services } from "./service-content";
 
+export interface ApiArticleSource {
+  title: string;
+  url: string;
+  publisher?: string;
+  date?: string;
+}
+
 export interface ApiArticleSummary {
   slug: string;
   path: string;
@@ -40,6 +47,7 @@ export interface ApiArticleDetail extends ApiArticleSummary {
   relatedServices?: string[];
   service?: ApiArticleService | string;
   diagram?: string[];
+  sources?: ApiArticleSource[];
 }
 
 export interface BlogListResponse {
@@ -61,6 +69,7 @@ export interface ArticleView {
   sections?: ApiArticleSection[];
   takeaway?: string;
   service?: ApiArticleService;
+  sources?: ApiArticleSource[];
 }
 
 const DEFAULT_API_BASE = "https://coresolution.digital/api";
@@ -211,6 +220,18 @@ export function normalizeApiDetail(item: ApiArticleDetail): ArticleView {
       ? item.takeaways.join("\n\n")
       : undefined);
 
+  const sources =
+    Array.isArray(item.sources) && item.sources.length > 0
+      ? item.sources
+          .filter((s) => s && typeof s.title === "string" && typeof s.url === "string")
+          .map((s) => ({
+            title: s.title,
+            url: s.url,
+            ...(s.publisher ? { publisher: s.publisher } : {}),
+            ...(s.date ? { date: s.date } : {}),
+          }))
+      : undefined;
+
   return {
     slug: item.slug,
     title: item.title,
@@ -230,6 +251,7 @@ export function normalizeApiDetail(item: ApiArticleDetail): ArticleView {
     })),
     takeaway,
     service: resolveService(item.service),
+    ...(sources && sources.length > 0 ? { sources } : {}),
   };
 }
 

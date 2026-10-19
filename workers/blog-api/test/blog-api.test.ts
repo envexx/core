@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isValidIsoDate, validateImageUpload } from "../src/validation";
+import {
+  isValidHttpUrl,
+  isValidIsoDate,
+  validateArticlePayload,
+  validateImageUpload,
+} from "../src/validation";
 import { authenticate } from "../src/auth";
 import { isAllowedUploadKey } from "../src/index";
 
@@ -20,6 +25,14 @@ test("isValidIsoDate rejects invalid calendar roll-overs and accepts valid calen
   assert.equal(isValidIsoDate(""), false);
   assert.equal(isValidIsoDate("2026-1-1"), false);
   assert.equal(isValidIsoDate("invalid-date"), false);
+});
+
+test("isValidHttpUrl accepts http and https and rejects others", () => {
+  assert.equal(isValidHttpUrl("https://example.com"), true);
+  assert.equal(isValidHttpUrl("http://example.com/path?query=1"), true);
+  assert.equal(isValidHttpUrl("ftp://example.com"), false);
+  assert.equal(isValidHttpUrl("not-a-url"), false);
+  assert.equal(isValidHttpUrl(""), false);
 });
 
 test("authenticate handles missing, malformed, and valid tokens correctly", () => {
@@ -85,4 +98,101 @@ test("isAllowedUploadKey only allows images/ prefix and rejects articles/ or roo
   assert.equal(isAllowedUploadKey("articles/index.json"), false);
   assert.equal(isAllowedUploadKey("secrets.txt"), false);
   assert.equal(isAllowedUploadKey(""), false);
+});
+
+const validBaseArticle = {
+  slug: "test-article",
+  category: "AI Systems",
+  readTime: 5,
+  date: "2026-10-19",
+  title: { id: "Judul Uji", en: "Test Title" },
+  excerpt: { id: "Ringkasan uji", en: "Test excerpt" },
+  takeaway: { id: "Takeaway uji", en: "Test takeaway" },
+  service: "ai-agent-systems",
+  sections: [
+    {
+      heading: { id: "Bagian 1", en: "Section 1" },
+      paragraphs: [{ id: "Paragraf 1", en: "Paragraph 1" }],
+    },
+  ],
+};
+
+test("validateArticlePayload handles sources: undefined, valid sources, empty sources", () => {
+  // 1. undefined sources is valid
+  const resUndefined = validateArticlePayload(validBaseArticle);
+  assert.equal(resUndefined.success, true);
+  if (resUndefined.success) {
+    assert.equal(resUndefined.data.sources, undefined);
+  }
+
+  // 2. valid sources with full fields
+  const resValid = validateArticlePayload({
+    ...validBaseArticle,
+    sources: [
+      {
+        title: "Reuters AI Report",
+        url: "https://www.reuters.com/technology/ai-report",
+        publisher: "Reuters",
+        date: "2026-10-15",
+      },
+      {
+        title: "TechCrunch Automation",
+        url: "https://techcrunch.com/automation",
+      },
+    ],
+  });
+  assert.equal(resValid.success, true);
+  if (resValid.success) {
+    assert.equal(resValid.data.sources?.length, 2);
+    assert.equal(resValid.data.sources?.[0].title, "Reuters AI Report");
+    assert.equal(resValid.data.sources?.[0].publisher, "Reuters");
+    assert.equal(resValid.data.sources?.[0].date, "2026-10-15");
+    assert.equal(resValid.data.sources?.[1].publisher, undefined);
+  }
+});
+
+test("validateArticlePayload rejects invalid sources: empty title, invalid url, invalid date, more than 10", () => {
+  // Empty title
+  const resEmptyTitle = validateArticlePayload({
+    ...validBaseArticle,
+    sources: [{ title: "   ", url: "https://example.com" }],
+  });
+  assert.equal(resEmptyTitle.success, false);
+  if (!resEmptyTitle.success) {
+    assert.ok(resEmptyTitle.errors.some((e) => e.includes("title must be a non-empty string")));
+  }
+
+  // Invalid URL (ftp or plain string)
+  const resBadUrl = validateArticlePayload({
+    ...validBaseArticle,
+    sources: [{ title: "Valid Title", url: "not-a-valid-http-url" }],
+  });
+  assert.equal(resBadUrl.success, false);
+  if (!resBadUrl.success) {
+    assert.ok(resBadUrl.errors.some((e) => e.includes("url must be a valid http or https URL")));
+  }
+
+  // Invalid date
+  const resBadDate = validateArticlePayload({
+    ...validBaseArticle,
+    sources: [{ title: "Valid Title", url: "https://example.com", date: "2026-02-31" }],
+  });
+  assert.equal(resBadDate.success, false);
+  if (!resBadDate.success) {
+    assert.ok(resBadDate.errors.some((e) => e.includes("date must be a valid ISO 8601 calendar date")));
+  }
+
+  // Exceeding 10 items
+  const elevenSources = Array.from({ length: 11 }, (_, i) => ({
+    title: `Source ${i + 1}`,
+    url: `https://example.com/source-${i + 1}`,
+  }));
+  const resOver10 = validateArticlePayload({
+    ...validBaseArticle,
+    sources: elevenSources,
+  });
+  assert.equal(resOver10.success, false);
+  if (!resOver10.success) {
+    assert.ok(resOver10.errors.some((e) => e.includes("cannot exceed 10 items")));
+  }
 });

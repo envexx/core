@@ -271,6 +271,10 @@ function buildArticleLd(
 
   const datePublished = article.date || undefined;
   const dateModified = article.updatedAt || article.date || undefined;
+  const citations =
+    article.sources && article.sources.length > 0
+      ? article.sources.map((s) => s.url)
+      : undefined;
 
   return {
     "@context": "https://schema.org",
@@ -293,6 +297,7 @@ function buildArticleLd(
         : {}),
     },
     ...(imageToUse ? { image: [imageToUse] } : {}),
+    ...(citations ? { citation: citations } : {}),
     isPartOf: {
       "@type": "Blog",
       name: `${config.siteName} Blog`,

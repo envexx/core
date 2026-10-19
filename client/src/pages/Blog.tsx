@@ -288,6 +288,8 @@ export function BlogArticle({ slug }: { slug: string }) {
     .slice(0, 3)
     .map((item) => normalizeStaticSummary(item, lang));
 
+  const hasSources = Array.isArray(article.sources) && article.sources.length > 0;
+
   return (
     <ContentLayout
       title={article.title}
@@ -395,6 +397,39 @@ export function BlogArticle({ slug }: { slug: string }) {
                 </span>
                 <p>{article.takeaway}</p>
               </div>
+            )}
+
+            {hasSources && (
+              <section
+                className="article-sources"
+                aria-label={lang === "id" ? "Sumber rujukan" : "Sources"}
+              >
+                <span className="section-kicker">
+                  {lang === "id" ? "SUMBER RUJUKAN" : "SOURCES"}
+                </span>
+                <ul className="article-sources-list">
+                  {article.sources!.map((source, sIdx) => (
+                    <li key={`${source.url}-${sIdx}`}>
+                      <a
+                        href={source.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="article-source-link"
+                      >
+                        {source.title}
+                        <ArrowUpRight size={14} />
+                      </a>
+                      {(source.publisher || source.date) && (
+                        <span className="article-source-meta">
+                          {source.publisher && <span>{source.publisher}</span>}
+                          {source.publisher && source.date && <span>·</span>}
+                          {source.date && <span>{source.date}</span>}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
             )}
 
             {article.service && (
