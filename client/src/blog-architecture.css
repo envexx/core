@@ -16,6 +16,12 @@
 .article-intro .page-breadcrumbs > span { min-width: 0; }
 .article-hero { margin-bottom: 40px; }
 .article-hero-image { width: 100%; max-height: 520px; object-fit: cover; border-radius: 18px; border: 1px solid hsl(var(--border)); background: hsl(var(--muted)); }
+.article-sources { margin: 36px 0 32px; padding-top: 24px; border-top: 1px solid hsl(var(--border)); }
+.article-sources-list { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 14px; }
+.article-sources-list li { display: flex; flex-direction: column; gap: 4px; }
+.article-source-link { display: inline-flex; align-items: center; gap: 6px; color: hsl(var(--foreground)); font-size: 14px; font-weight: 500; text-decoration: underline; text-decoration-color: hsl(var(--ring) / .4); text-underline-offset: 3px; }
+.article-source-link:hover { text-decoration-color: hsl(var(--ring)); }
+.article-source-meta { font-size: 12px; color: hsl(var(--muted-foreground)); display: inline-flex; gap: 6px; align-items: center; }
 @media (max-width: 600px) {
   .blog-pillar-link { padding: 23px 20px; }
   .agency-site .blog-pillar-link h2 { font-size: 24px; }
