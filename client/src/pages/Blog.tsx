@@ -327,6 +327,18 @@ export function BlogArticle({ slug }: { slug: string }) {
           )}
         </header>
 
+        {article.imageUrl && (
+          <div className="agency-container article-hero">
+            <img
+              src={article.imageUrl}
+              alt={article.imageAlt || article.title}
+              loading="eager"
+              decoding="async"
+              className="article-hero-image"
+            />
+          </div>
+        )}
+
         <div className="agency-container article-layout">
           <div className="article-prose">
             {article.diagram && article.diagram.length > 0 && (
