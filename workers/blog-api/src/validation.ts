@@ -7,8 +7,14 @@
 // - Title, Excerpt, Takeaway: LocalCopy with non-empty "id" and "en"
 // - Sections: array of 1+ sections, each with valid heading and 1+ paragraphs
 // - Image upload: max 5 MB, whitelist MIME image/jpeg, image/png, image/webp
+// - Sources: optional array of <= 10 items, each with non-empty title, http/https url, optional publisher, optional ISO YYYY-MM-DD date
 
-import { ALLOWED_CATEGORIES, type BlogCategory, type DynamicArticle } from "./storage";
+import {
+  ALLOWED_CATEGORIES,
+  type ArticleSource,
+  type BlogCategory,
+  type DynamicArticle,
+} from "./storage";
 import type { LocalCopy } from "../../../client/src/lib/service-content";
 
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -45,6 +51,16 @@ export function isValidIsoDate(date: string): boolean {
     d.getUTCMonth() === month - 1 &&
     d.getUTCDate() === day
   );
+}
+
+export function isValidHttpUrl(urlString: string): boolean {
+  if (!urlString || typeof urlString !== "string") return false;
+  try {
+    const parsed = new URL(urlString);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 function isNonEmptyString(val: unknown): val is string {
@@ -173,6 +189,50 @@ export function validateArticlePayload(
     errors.push("imageAlt must be an object with 'id' and 'en' strings");
   }
 
+  let validSources: ArticleSource[] | undefined = undefined;
+  if (body.sources !== undefined) {
+    if (!Array.isArray(body.sources)) {
+      errors.push("sources must be an array of source objects");
+    } else if (body.sources.length > 10) {
+      errors.push("sources cannot exceed 10 items");
+    } else {
+      const parsedSources: ArticleSource[] = [];
+      body.sources.forEach((src, idx) => {
+        if (!src || typeof src !== "object") {
+          errors.push(`sources[${idx}] must be an object`);
+          return;
+        }
+        const s = src as Record<string, unknown>;
+        if (!isNonEmptyString(s.title)) {
+          errors.push(`sources[${idx}].title must be a non-empty string`);
+        }
+        if (!isNonEmptyString(s.url) || !isValidHttpUrl(s.url)) {
+          errors.push(`sources[${idx}].url must be a valid http or https URL`);
+        }
+        if (s.publisher !== undefined && typeof s.publisher !== "string") {
+          errors.push(`sources[${idx}].publisher must be a string if provided`);
+        }
+        if (s.date !== undefined && !isValidIsoDate(s.date as string)) {
+          errors.push(`sources[${idx}].date must be a valid ISO 8601 calendar date (YYYY-MM-DD)`);
+        }
+
+        if (isNonEmptyString(s.title) && isNonEmptyString(s.url) && isValidHttpUrl(s.url)) {
+          parsedSources.push({
+            title: s.title.trim(),
+            url: s.url.trim(),
+            ...(typeof s.publisher === "string" && s.publisher.trim().length > 0
+              ? { publisher: s.publisher.trim() }
+              : {}),
+            ...(typeof s.date === "string" && s.date.trim().length > 0
+              ? { date: s.date.trim() }
+              : {}),
+          });
+        }
+      });
+      validSources = parsedSources;
+    }
+  }
+
   if (errors.length > 0) {
     return { success: false, errors };
   }
@@ -190,6 +250,7 @@ export function validateArticlePayload(
     service: (body.service as string).trim(),
     ...(body.imageUrl ? { imageUrl: (body.imageUrl as string).trim() } : {}),
     ...(body.imageAlt ? { imageAlt: body.imageAlt as LocalCopy } : {}),
+    ...(validSources && validSources.length > 0 ? { sources: validSources } : {}),
   };
 
   return { success: true, data: validArticle };
