@@ -3,7 +3,7 @@
 // Rules:
 // - Slug: lowercase kebab-case alphanumeric [a-z0-9]+(-[a-z0-9]+)*, no path traversal (.., /, \)
 // - Category: must be one of ALLOWED_CATEGORIES ("AI Systems" | "Automation" | "Case Studies")
-// - Date: ISO 8601 YYYY-MM-DD
+// - Date: ISO 8601 YYYY-MM-DD (exact calendar date, leap-year aware)
 // - Title, Excerpt, Takeaway: LocalCopy with non-empty "id" and "en"
 // - Sections: array of 1+ sections, each with valid heading and 1+ paragraphs
 // - Image upload: max 5 MB, whitelist MIME image/jpeg, image/png, image/webp
@@ -12,7 +12,7 @@ import { ALLOWED_CATEGORIES, type BlogCategory, type DynamicArticle } from "./st
 import type { LocalCopy } from "../../../client/src/lib/service-content";
 
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
-export const ALLOWED_IMAGE_MIME_TYPES = [
+const ALLOWED_IMAGE_MIME_TYPES = [
   "image/jpeg",
   "image/png",
   "image/webp",
@@ -25,17 +25,26 @@ export type ValidationResult<T> =
 export function isValidSlug(slug: string): boolean {
   if (!slug || typeof slug !== "string") return false;
   if (slug.length < 3 || slug.length > 120) return false;
-  // Disallow any traversal or special characters: strict lowercase alphanumeric + hyphen
   const slugRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/;
   return slugRegex.test(slug);
 }
 
 export function isValidIsoDate(date: string): boolean {
   if (!date || typeof date !== "string") return false;
-  const isoDateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
-  if (!isoDateRegex.test(date)) return false;
-  const d = new Date(date);
-  return !isNaN(d.getTime());
+  const match = /^(\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.exec(date);
+  if (!match) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  // Calendar validation: UTC avoids timezone roll-over
+  const d = new Date(Date.UTC(year, month - 1, day));
+  return (
+    d.getUTCFullYear() === year &&
+    d.getUTCMonth() === month - 1 &&
+    d.getUTCDate() === day
+  );
 }
 
 function isNonEmptyString(val: unknown): val is string {
