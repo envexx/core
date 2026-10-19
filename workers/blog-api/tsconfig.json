@@ -10,8 +10,13 @@
     "noEmit": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "forceConsistentCasingInFileNames": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "../../client/src/lib/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "../../client/src/lib/blog-content.ts",
+    "../../client/src/lib/service-content.ts"
+  ]
 }
