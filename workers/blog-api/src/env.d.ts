@@ -12,4 +12,10 @@ interface Env {
   CORS_ORIGINS?: string;
   /** Path to the social preview image, relative to SITE_URL. */
   OG_IMAGE_PATH?: string;
+  /** Secret bearer token for write operations (POST, PUT, DELETE, upload). */
+  BLOG_API_TOKEN?: string;
+  /** Optional public base URL for R2 objects. Defaults to `${SITE_URL}/uploads`. */
+  R2_PUBLIC_URL?: string;
+  /** R2 bucket binding for blog images and JSON metadata storage. */
+  BLOG_BUCKET?: R2Bucket;
 }

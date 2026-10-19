@@ -1,214 +1,230 @@
 # CORE Solution Digital — Blog & SEO API (Cloudflare Worker)
 
 Backend mandiri di **Cloudflare Workers** yang mengekspos REST API blog + SEO untuk
-[situs CORE Solution Digital](https://www.coresolution.digital). Konten diambil
-langsung dari sumber yang sudah dipakai frontend, `client/src/lib/blog-content.ts`
-(di-*derive*, bukan diduplikasi).
+[situs CORE Solution Digital](https://www.coresolution.digital). Konten menggabungkan
+artikel statis bawaan (`client/src/lib/blog-content.ts`) dan artikel dinamis + gambar
+yang disimpan di **Cloudflare R2**.
 
-## Ringkasan
+## Ringkasan Endpoint
 
-| Method | Path | Deskripsi |
-| --- | --- | --- |
-| `GET` | `/api/health` | Health check |
-| `GET` | `/api/blog` | Daftar artikel (ringkasan) — `?lang=id\|en` |
-| `GET` | `/api/blog/:slug` | Detail artikel (seksi, takeaways, service terkait) |
-| `GET` | `/api/seo/:slug` | Metadata SEO untuk artikel (setara `?path=/blog/:slug`) |
-| `GET` | `/api/seo?path=/...` | Metadata SEO untuk halaman apa pun (artikel, blog, kategori, layanan, home) |
-| `GET` | `/sitemap.xml` | Sitemap dinamis (semua artikel + halaman utama) |
-| `GET` | `/robots.txt` | robots.txt SEO-friendly |
+| Method | Path | Auth | Deskripsi |
+| --- | --- | --- | --- |
+| `GET` | `/api/health` | Publik | Status service, ketersediaan binding R2 & auth |
+| `GET` | `/api/blog` | Publik | Daftar artikel gabungan (statis + dinamis R2) — `?lang=id\|en` |
+| `GET` | `/api/blog/:slug` | Publik | Detail artikel lengkap (statis/dinamis) |
+| `POST` | `/api/blog` | **Bearer** | Buat artikel dinamis baru (JSON) |
+| `PUT` | `/api/blog/:slug` | **Bearer** | Perbarui artikel dinamis (JSON) |
+| `DELETE` | `/api/blog/:slug` | **Bearer** | Hapus artikel dinamis dari R2 |
+| `POST` | `/api/blog/:slug/image` | **Bearer** | Upload gambar artikel (maks 5MB, binary/multipart) |
+| `POST` | `/api/uploads` | **Bearer** | Upload aset umum ke R2 |
+| `GET` | `/uploads/:key` | Publik | Sajikan file/gambar dari R2 (jika tanpa custom domain) |
+| `GET` | `/api/seo/:slug` | Publik | Metadata SEO untuk artikel |
+| `GET` | `/api/seo?path=/...` | Publik | Metadata SEO halaman (termasuk artikel dinamis) |
+| `GET` | `/sitemap.xml` | Publik | Sitemap dinamis (termasuk artikel dinamis) |
+| `GET` | `/robots.txt` | Publik | robots.txt SEO-friendly |
 
-Semua endpoint menerima `?lang=id` (default) atau `?lang=en`.
+---
 
-## Struktur
+## Arsitektur Penyimpanan: Cloudflare R2
 
-```
-workers/blog-api/
-  wrangler.toml        # konfigurasi Worker + [vars] (tanpa hardcode domain/secret)
-  package.json         # scripts: dev, deploy, typecheck
-  tsconfig.json        # typecheck khusus Worker (lib WebWorker)
-  src/
-    index.ts           # router + fetch handler
-    content.ts         # adapter: derive konten dari client/src/lib/blog-content.ts
-    seo.ts             # generator metadata SEO + JSON-LD (Article, BreadcrumbList)
-    sitemap.ts         # sitemap.xml + robots.txt
-    http.ts            # CORS whitelist, header keamanan, response helper
-    url.ts             # util path absolut/normalisasi
-    env.d.ts           # tipe binding Env
-  .dev.vars.example    # contoh override env untuk dev lokal
-```
+Penyimpanan metadata artikel dinamis menggunakan **R2 JSON** (`articles/<slug>.json`) dan folder aset `images/<slug>/...` pada satu bucket R2 yang sama (`BLOG_BUCKET`).
 
-## Menjalankan lokal
+**Alasan pemilihan R2 dibanding KV / D1:**
+1. **Paling hemat resource & tanpa konfigurasi ganda**: Kebutuhan upload file gambar mewajibkan keberadaan bucket R2. Memanfaatkan R2 untuk menyimpan metadata JSON artikel berarti hanya memerlukan 1 resource Cloudflare tanpa perlu membuat database D1 atau namespace KV tambahan.
+2. **Tidak ada batas ukuran 25MB database atau batas per-key KV 25MB**: R2 mendukung objek hingga 5 GB (gambar blog 5 MB dan JSON dokumen panjang tersimpan aman).
+3. **Biaya & kuota gratis Cloudflare R2**: 10 GB penyimpanan gratis per bulan, 10 juta permintaan baca Class B gratis, dan 1 juta Class A per bulan tanpa biaya egress bandwidth.
+4. **Statis lama tetap utuh**: Artikel hardcoded lama di `blog-content.ts` tetap menjadi baseline andal tanpa dependensi storage, sedangkan artikel R2 otomatis ditimpa/ditambahkan di atasnya.
 
-```bash
-cd workers/blog-api
-npm install
-npm run dev
-```
+---
 
-Worker berjalan di `http://127.0.0.1:8787`. Untuk menyesuaikan `SITE_URL`/CORS saat
-dev, salin `.dev.vars.example` menjadi `.dev.vars` (file ini tidak di-commit).
+## Setup Cloudflare R2 & Secrets
+
+### 1. Buat Bucket R2 di Cloudflare
+Jalankan melalui terminal wrangler atau dashboard Cloudflare:
 
 ```bash
-npm run typecheck   # tsc -p tsconfig.json --noEmit
+npx wrangler r2 bucket create core-solution-blog
 ```
 
-## Contoh respons (curl)
-
-### Daftar artikel
+### 2. Atur Secret `BLOG_API_TOKEN`
+Worker membutuhkan token otentikasi Bearer untuk semua operasi tulis. Simpan rahasia di Cloudflare:
 
 ```bash
-curl -s "http://127.0.0.1:8787/api/blog" | head
+npx wrangler secret put BLOG_API_TOKEN
+# Masukkan string acak yang kuat (mis. openssl rand -hex 24)
 ```
 
+### 3. (Opsional) Public Domain R2
+Secara default, gambar dapat diakses langsung melalui endpoint Worker `/uploads/:key`.
+Bila bucket R2 dihubungkan ke custom domain (mis. `assets.coresolution.digital`), atur variabel `R2_PUBLIC_URL` di `wrangler.toml` atau via environment:
+
+```toml
+[vars]
+R2_PUBLIC_URL = "https://assets.coresolution.digital"
+```
+
+---
+
+## Otentikasi
+
+Semua request `POST`, `PUT`, dan `DELETE` wajib menyertakan header:
+```http
+Authorization: Bearer <BLOG_API_TOKEN>
+```
+Bila token tidak ada atau tidak cocok, API mengembalikan:
 ```json
 {
-  "count": 5,
-  "lang": "id",
-  "items": [
-    {
-      "slug": "panduan-ai-automation-untuk-bisnis",
-      "path": "/blog/panduan-ai-automation-untuk-bisnis",
-      "title": "Panduan AI Automation untuk bisnis: dari proses manual ke sistem terhubung",
-      "category": "Automation",
-      "categorySlug": "automation",
-      "excerpt": "Mulai dari memilih proses, memahami peran AI, ...",
-      "readTime": 6,
-      "date": "2026-08-04",
-      "lang": "id",
-      "url": "https://coresolution.digital/blog/panduan-ai-automation-untuk-bisnis"
+  "error": "unauthorized",
+  "message": "Invalid API token"
+}
+```
+
+---
+
+## Contoh Pemanggilan API (cURL)
+
+### 1. Upload Gambar Artikel
+Maksimal **5 MB**. MIME type yang diizinkan: `image/jpeg`, `image/png`, `image/webp`.
+
+Menggunakan multipart/form-data:
+```bash
+curl -X POST "https://coresolution.digital/api/blog/implementasi-ai-crm/image" \
+  -H "Authorization: Bearer <BLOG_API_TOKEN>" \
+  -F "file=@/path/to/diagram.webp;type=image/webp"
+```
+
+Atau direct raw binary:
+```bash
+curl -X POST "https://coresolution.digital/api/blog/implementasi-ai-crm/image" \
+  -H "Authorization: Bearer <BLOG_API_TOKEN>" \
+  -H "Content-Type: image/png" \
+  --data-binary "@/path/to/screenshot.png"
+```
+
+Respons (`201 Created`):
+```json
+{
+  "status": "success",
+  "key": "images/implementasi-ai-crm/1729350000000-a1b2c3.png",
+  "url": "https://coresolution.digital/uploads/images/implementasi-ai-crm/1729350000000-a1b2c3.png",
+  "contentType": "image/png",
+  "bytes": 245890
+}
+```
+
+---
+
+### 2. Membuat Artikel Baru (`POST /api/blog`)
+Semua teks bilingual `{ "id": "...", "en": "..." }`.
+
+```bash
+curl -X POST "https://coresolution.digital/api/blog" \
+  -H "Authorization: Bearer <BLOG_API_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "slug": "integrasi-ai-customer-service",
+    "category": "AI Systems",
+    "readTime": 5,
+    "date": "2026-10-20",
+    "title": {
+      "id": "Panduan Integrasi AI untuk Customer Support Modern",
+      "en": "Guide to AI Integration for Modern Customer Support"
+    },
+    "excerpt": {
+      "id": "Menghubungkan tiket pelanggan dengan agent AI tanpa kehilangan kendali tim.",
+      "en": "Connecting customer tickets with AI agents without losing team control."
+    },
+    "service": "ai-agent-systems",
+    "diagram": ["Webhook Tiket", "Analisis Konteks", "Rekomendasi Draft"],
+    "imageUrl": "https://coresolution.digital/uploads/images/integrasi-ai-customer-service/hero.webp",
+    "imageAlt": {
+      "id": "Diagram alur integrasi AI customer service",
+      "en": "Flow diagram of AI customer service integration"
+    },
+    "sections": [
+      {
+        "heading": {
+          "id": "Mulai dari Masalah Validasi",
+          "en": "Start with Validation Problems"
+        },
+        "paragraphs": [
+          {
+            "id": "Banyak tim kewalahan menyortir tiket dasar yang repetitif.",
+            "en": "Many teams are overwhelmed sorting repetitive baseline tickets."
+          }
+        ],
+        "points": [
+          {
+            "id": "Definisikan eskalasi manusia.",
+            "en": "Define human escalation."
+          }
+        ]
+      }
+    ],
+    "takeaway": {
+      "id": "Gunakan AI untuk memproses konteks, biarkan tim menyetujui respons bernilai tinggi.",
+      "en": "Use AI to process context, let humans approve high-stakes responses."
     }
-  ]
-}
+  }'
 ```
 
-### Detail artikel
+---
 
+### 3. Memperbarui Artikel (`PUT /api/blog/:slug`)
 ```bash
-curl -s "http://127.0.0.1:8787/api/blog/automasi-lead-ke-crm?lang=id"
-curl -s "http://127.0.0.1:8787/api/blog/automasi-lead-ke-crm?lang=en"
+curl -X PUT "https://coresolution.digital/api/blog/integrasi-ai-customer-service" \
+  -H "Authorization: Bearer <BLOG_API_TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "slug": "integrasi-ai-customer-service",
+    "category": "AI Systems",
+    "readTime": 6,
+    "date": "2026-10-20",
+    "title": {
+      "id": "Panduan Integrasi AI untuk Customer Support Modern (Revisi)",
+      "en": "Guide to AI Integration for Modern Customer Support (Updated)"
+    },
+    "excerpt": {
+      "id": "Menghubungkan tiket pelanggan dengan agent AI tanpa kehilangan kendali tim.",
+      "en": "Connecting customer tickets with AI agents without losing team control."
+    },
+    "service": "ai-agent-systems",
+    "diagram": ["Webhook Tiket", "Analisis Konteks", "Rekomendasi Draft"],
+    "sections": [
+      {
+        "heading": { "id": "Langkah Awal", "en": "First Steps" },
+        "paragraphs": [
+          { "id": "Uji pada jalur tiket prioritas rendah terlebih dahulu.", "en": "Test on low-priority tickets first." }
+        ]
+      }
+    ],
+    "takeaway": {
+      "id": "Mulai kecil dan ukur akurasi.",
+      "en": "Start small and evaluate accuracy."
+    }
+  }'
 ```
 
-Mengembalikan `sections[]`, `takeaway`/`takeaways[]`, `relatedServices[]`, `service`,
-`diagram[]`, dan `url` absolut. Slug tak dikenal → `404` dengan `{ "error": "not_found" }`.
+---
 
-### Metadata SEO
-
+### 4. Menghapus Artikel Dinamis (`DELETE /api/blog/:slug`)
 ```bash
-curl -s "http://127.0.0.1:8787/api/seo/alur-invoice-dengan-approval"
-curl -s "http://127.0.0.1:8787/api/seo?path=/blog"
-curl -s "http://127.0.0.1:8787/api/seo?path=/services/ai-strategy&lang=en"
+curl -X DELETE "https://coresolution.digital/api/blog/integrasi-ai-customer-service" \
+  -H "Authorization: Bearer <BLOG_API_TOKEN>"
 ```
 
-Bentuk respons:
+---
 
-```json
-{
-  "path": "/blog/alur-invoice-dengan-approval",
-  "url": "https://coresolution.digital/blog/alur-invoice-dengan-approval",
-  "canonical": "https://coresolution.digital/blog/alur-invoice-dengan-approval",
-  "title": "Merancang alur invoice dengan validasi dan approval — CORE Solution Digital",
-  "description": "Contoh rancangan proses dari dokumen masuk hingga draft ERP, ...",
-  "lang": "id",
-  "openGraph": { "title": "...", "description": "...", "url": "...", "type": "article", "siteName": "CORE Solution Digital", "locale": "id_ID", "image": "https://coresolution.digital/images/core-agent-workspace.png" },
-  "twitter": { "card": "summary_large_image", "title": "...", "description": "...", "image": "..." },
-  "jsonLd": {
-    "Article": { "@context": "https://schema.org", "@type": "Article", "headline": "...", "datePublished": "2026-09-08", "...": "..." },
-    "BreadcrumbList": { "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": ["..."] }
-  }
-}
-```
+## Menjalankan & Menguji Lokal
 
-Halaman non-artikel memakai `jsonLd.WebPage` + `BreadcrumbList`.
-
-### Sitemap & robots
-
-```bash
-curl -s "http://127.0.0.1:8787/sitemap.xml"
-curl -s "http://127.0.0.1:8787/robots.txt"
-```
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://coresolution.digital/blog/alur-invoice-dengan-approval</loc>
-    <lastmod>2026-09-08</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  ...
-</urlset>
-```
-
-```text
-User-agent: *
-Allow: /
-Disallow: /api/
-
-Sitemap: https://coresolution.digital/sitemap.xml
-```
-
-### Cek CORS preflight
-
-```bash
-curl -s -i -X OPTIONS "http://127.0.0.1:8787/api/blog" \
-  -H "Origin: https://www.coresolution.digital" \
-  -H "Access-Control-Request-Method: GET"
-# -> 204 dengan Access-Control-Allow-Origin hanya untuk origin yang di-whitelist
-```
-
-## Deploy ke Cloudflare
-
-```bash
-cd workers/blog-api
-npx wrangler login          # sekali saja
-npm run deploy              # wrangler deploy
-```
-
-Setiap kali `[vars]` berubah, cukup `npm run deploy` ulang. Untuk nilai rahasia
-(bila ditambahkan di masa depan), gunakan `npx wrangler secret put <NAME>` — jangan
-masukkan secret ke `wrangler.toml`.
-
-## Environment / konfigurasi
-
-| Var | Default (`wrangler.toml`) | Fungsi |
-| --- | --- | --- |
-| `SITE_URL` | `https://coresolution.digital` | Origin absolut untuk canonical/OG/JSON-LD/sitemap. **Harus sama dengan host kanonik situs.** Bila tidak diisi, Worker memakai origin request (dev). |
-| `SITE_NAME` | `CORE Solution Digital` | Nama situs di title & JSON-LD |
-| `SITE_LOCALE` | `id_ID` | `og:locale` (versi `en` otomatis `en_US`) |
-| `OG_IMAGE_PATH` | `/images/core-agent-workspace.png` | Path gambar social preview relatif ke `SITE_URL` (kosongkan untuk menonaktifkan) |
-| `SITE_LAST_MODIFIED` | `2026-10-09` | Fallback `lastmod` sitemap untuk halaman tanpa tanggal |
-| `CORS_ORIGINS` | `https://coresolution.digital,https://www.coresolution.digital` | Whitelist origin browser (dipisah koma/space). Tanpa wildcard. |
-
-Catatan: `frontend` saat ini memakai canonical `https://coresolution.digital` (tanpa
-`www`). Pastikan `SITE_URL` mengikuti host kanonik yang benar-benar disajikan agar
-tidak muncul duplikasi `www`/non-`www` di mesin pencari.
-
-## Sumber konten (single source of truth)
-
-`src/content.ts` mengimpor langsung:
-
-```ts
-import { articles } from "../../../client/src/lib/blog-content";
-```
-
-Wrangler/esbuild membundel file tersebut saat build, jadi tidak ada teks yang
-diduplikasi. Field `date` (tanggal terbit editorial, ISO `YYYY-MM-DD`) ditambahkan
-di `blog-content.ts` dan dipakai untuk `lastmod` sitemap + `datePublished` JSON-LD.
-
-Bila impor lintas-folder ini suatu saat tidak bisa dibundel, buat langkah build yang
-menyalin `blog-content.ts` + `service-content.ts` ke folder Worker dan arahkan impor
-ke salinan tersebut (tetap satu sumber).
-
-## Integrasi frontend (opsional, tidak mengubah tampilan)
-
-Backend ini murni API; UI tidak diubah. Bila nanti ingin memakai metadata siap-pakai
-untuk prerender/SSR, cukup fetch endpoint SEO lalu isi tag `<head>`:
-
-```ts
-const seo = await fetch(`${API_BASE}/api/seo?path=${encodeURIComponent(path)}`).then(r => r.json());
-// seo.title, seo.description, seo.canonical, seo.openGraph, seo.twitter, seo.jsonLd
-```
-
-Untuk sitemap, arahkan `/sitemap.xml` dan `/robots.txt` situs ke Worker ini (via
-Cloudflare route/redirect) agar crawler menemukan versi dinamis.
+1. Salin `.dev.vars.example` menjadi `.dev.vars`:
+   ```bash
+   cp .dev.vars.example .dev.vars
+   ```
+2. Pastikan `BLOG_API_TOKEN` terisi di `.dev.vars`.
+3. Jalankan typecheck & dev server:
+   ```bash
+   npm run typecheck
+   npm run dev
+   ```
+   Wrangler akan otomatis menjalankan emulasi R2 lokal.

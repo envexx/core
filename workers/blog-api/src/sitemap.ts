@@ -1,4 +1,4 @@
-import { categories, listArticles, listServices } from "./content";
+import { categories, listAllArticles, listServices } from "./content";
 import { absolute } from "./url";
 import type { SeoConfig } from "./seo";
 
@@ -9,7 +9,10 @@ type SitemapEntry = {
   priority: string;
 };
 
-export function buildSitemapEntries(config: SeoConfig): SitemapEntry[] {
+export async function buildSitemapEntries(
+  config: SeoConfig,
+  bucket?: R2Bucket,
+): Promise<SitemapEntry[]> {
   const fallbackLastmod = config.siteLastModified;
   const page = (
     path: string,
@@ -17,6 +20,8 @@ export function buildSitemapEntries(config: SeoConfig): SitemapEntry[] {
     priority: string,
     lastmod = fallbackLastmod,
   ): SitemapEntry => ({ path, changefreq, priority, ...(lastmod ? { lastmod } : {}) });
+
+  const allArticles = await listAllArticles(bucket, "id");
 
   return [
     page("/", "weekly", "1.0"),
@@ -26,14 +31,15 @@ export function buildSitemapEntries(config: SeoConfig): SitemapEntry[] {
       page(`/blog/kategori/${category.slug}`, "weekly", "0.6"),
     ),
     ...listServices("id").map((service) => page(service.path, "monthly", "0.8")),
-    ...listArticles("id").map((article) =>
+    ...allArticles.map((article) =>
       page(article.path, "monthly", "0.8", article.date ?? fallbackLastmod),
     ),
   ];
 }
 
-export function buildSitemap(config: SeoConfig): string {
-  const urls = buildSitemapEntries(config)
+export async function buildSitemap(config: SeoConfig, bucket?: R2Bucket): Promise<string> {
+  const entries = await buildSitemapEntries(config, bucket);
+  const urls = entries
     .map((entry) => {
       const lines = [`    <loc>${escapeXml(absolute(config.siteUrl, entry.path))}</loc>`];
       if (entry.lastmod) lines.push(`    <lastmod>${escapeXml(entry.lastmod)}</lastmod>`);

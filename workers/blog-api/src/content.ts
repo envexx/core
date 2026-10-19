@@ -1,9 +1,8 @@
 // Content adapter.
 //
-// Single source of truth: the frontend content modules. We import them directly
-// at build time (wrangler/esbuild bundles them) instead of duplicating text here.
-// If these imports ever stop being bundleable, run a build step that copies the
-// two files into this folder and point the imports at the copies.
+// Single source of truth: frontend content modules + optional R2 dynamic store.
+// Dynamic articles override or append to static articles.
+
 import {
   articles as sourceArticles,
   pillarSlug,
@@ -13,6 +12,11 @@ import {
   services as sourceServices,
   type LocalCopy,
 } from "../../../client/src/lib/service-content";
+import {
+  getDynamicArticle,
+  listDynamicArticles,
+  type DynamicArticle,
+} from "./storage";
 
 export type Lang = "id" | "en";
 export const LANGS: readonly Lang[] = ["id", "en"] as const;
@@ -22,7 +26,7 @@ export function parseLang(value: string | null | undefined): Lang {
   return value === "en" ? "en" : DEFAULT_LANG;
 }
 
-function pick(value: LocalCopy, lang: Lang): string {
+export function pick(value: LocalCopy, lang: Lang): string {
   return value[lang] ?? value.id;
 }
 
@@ -41,7 +45,7 @@ export function categoryLabel(category: string, lang: Lang): string {
   return category;
 }
 
-function categorySlug(category: string): string {
+export function categorySlug(category: string): string {
   const match = blogCategories.find((item) => item.category === category);
   return match ? match.slug : category.toLowerCase().replace(/\s+/g, "-");
 }
@@ -56,6 +60,9 @@ export type ArticleSummary = {
   readTime: number;
   date: string | null;
   lang: Lang;
+  imageUrl?: string;
+  imageAlt?: string;
+  isDynamic?: boolean;
 };
 
 export type ArticleLinkRef = { slug: string; label: string; path: string };
@@ -89,7 +96,11 @@ export type ServiceSummary = {
   lang: Lang;
 };
 
-function toSummary(article: (typeof sourceArticles)[number], lang: Lang): ArticleSummary {
+type GenericArticle = (typeof sourceArticles)[number] | DynamicArticle;
+
+function toSummary(article: GenericArticle, lang: Lang, isDynamic = false): ArticleSummary {
+  const hasImage = "imageUrl" in article && typeof article.imageUrl === "string";
+  const hasImageAlt = "imageAlt" in article && article.imageAlt;
   return {
     slug: article.slug,
     path: `/blog/${article.slug}`,
@@ -100,22 +111,18 @@ function toSummary(article: (typeof sourceArticles)[number], lang: Lang): Articl
     readTime: article.readTime,
     date: article.date ?? null,
     lang,
+    ...(hasImage ? { imageUrl: (article as DynamicArticle).imageUrl } : {}),
+    ...(hasImageAlt ? { imageAlt: pick((article as DynamicArticle).imageAlt!, lang) } : {}),
+    ...(isDynamic ? { isDynamic: true } : {}),
   };
 }
 
-export function listArticles(lang: Lang = DEFAULT_LANG): ArticleSummary[] {
-  return sourceArticles.map((article) => toSummary(article, lang));
-}
-
-export function getArticle(slug: string, lang: Lang = DEFAULT_LANG): ArticleDetail | null {
-  const article = sourceArticles.find((item) => item.slug === slug);
-  if (!article) return null;
-
+export function toDetail(article: GenericArticle, lang: Lang, isDynamic = false): ArticleDetail {
   const related = sourceServices.find((item) => item.slug === article.service) ?? null;
   const takeaway = pick(article.takeaway, lang);
 
   return {
-    ...toSummary(article, lang),
+    ...toSummary(article, lang, isDynamic),
     sections: article.sections.map((section, index) => ({
       id: `section-${index + 1}`,
       heading: pick(section.heading, lang),
@@ -133,9 +140,66 @@ export function getArticle(slug: string, lang: Lang = DEFAULT_LANG): ArticleDeta
     service: related
       ? { slug: related.slug, name: related.name, path: `/services/${related.slug}` }
       : null,
-    diagram: article.diagram,
+    diagram: article.diagram || [],
     availableLangs: LANGS,
   };
+}
+
+/** Synchronous fallback: only static articles */
+export function listArticles(lang: Lang = DEFAULT_LANG): ArticleSummary[] {
+  return sourceArticles.map((article) => toSummary(article, lang, false));
+}
+
+/** Merged list: dynamic R2 articles + static fallback, ordered by date descending */
+export async function listAllArticles(
+  bucket: R2Bucket | undefined,
+  lang: Lang = DEFAULT_LANG,
+): Promise<ArticleSummary[]> {
+  const dynamic = await listDynamicArticles(bucket);
+  const dynamicSlugs = new Set(dynamic.map((d) => d.slug));
+
+  const items: ArticleSummary[] = [];
+
+  // Add dynamic articles
+  for (const d of dynamic) {
+    items.push(toSummary(d, lang, true));
+  }
+
+  // Add static articles that are not overridden by dynamic
+  for (const s of sourceArticles) {
+    if (!dynamicSlugs.has(s.slug)) {
+      items.push(toSummary(s, lang, false));
+    }
+  }
+
+  // Sort by date descending
+  items.sort((a, b) => {
+    const da = a.date || "";
+    const db = b.date || "";
+    return db.localeCompare(da);
+  });
+
+  return items;
+}
+
+/** Synchronous fallback: lookup single static article */
+export function getArticle(slug: string, lang: Lang = DEFAULT_LANG): ArticleDetail | null {
+  const article = sourceArticles.find((item) => item.slug === slug);
+  if (!article) return null;
+  return toDetail(article, lang, false);
+}
+
+/** Lookup dynamic article in R2 first, fall back to static */
+export async function findArticle(
+  bucket: R2Bucket | undefined,
+  slug: string,
+  lang: Lang = DEFAULT_LANG,
+): Promise<ArticleDetail | null> {
+  const dyn = await getDynamicArticle(bucket, slug);
+  if (dyn) {
+    return toDetail(dyn, lang, true);
+  }
+  return getArticle(slug, lang);
 }
 
 function toServiceSummary(service: (typeof sourceServices)[number], lang: Lang): ServiceSummary {

@@ -1,3 +1,6 @@
 # Copy to `.dev.vars` for local `wrangler dev` overrides. Never commit `.dev.vars`.
 SITE_URL=http://localhost:8787
 CORS_ORIGINS=http://localhost:8787,http://localhost:5173,http://localhost:5000
+BLOG_API_TOKEN=dev-secret-token-change-in-production
+# Optional custom domain for R2. If omitted, worker serves uploads via /uploads/:key
+# R2_PUBLIC_URL=https://assets.coresolution.digital

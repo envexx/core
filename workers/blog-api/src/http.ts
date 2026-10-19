@@ -29,8 +29,8 @@ export function applyCors(request: Request, env: Env, siteUrl: string, headers: 
   if (!allowedOrigins(env, siteUrl).includes(normalizeOrigin(origin))) return;
 
   headers.set("Access-Control-Allow-Origin", origin);
-  headers.set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type, Accept");
+  headers.set("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, OPTIONS");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
   headers.set("Access-Control-Max-Age", "86400");
   const vary = headers.get("Vary");
   headers.set("Vary", vary ? `${vary}, Origin` : "Origin");
