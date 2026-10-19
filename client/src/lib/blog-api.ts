@@ -1,5 +1,5 @@
 import type { Language } from "./i18n";
-import { articles, type blogCategories } from "./blog-content";
+import { articles } from "./blog-content";
 import { services } from "./service-content";
 
 export interface ApiArticleSummary {
