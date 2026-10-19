@@ -2,11 +2,11 @@
 //
 // Key layout in R2:
 //   articles/<slug>.json  -> Serialized dynamic article payload
+//   articles/index.json   -> Compact summary index of all dynamic articles
 //
 // Dynamic articles augment hardcoded static articles seamlessly.
 
 import type { LocalCopy } from "../../../client/src/lib/service-content";
-import type { Lang } from "./content";
 
 export const ALLOWED_CATEGORIES = ["AI Systems", "Automation", "Case Studies"] as const;
 export type BlogCategory = (typeof ALLOWED_CATEGORIES)[number];
@@ -36,6 +36,7 @@ export type DynamicArticle = {
 };
 
 const R2_PREFIX = "articles/";
+const INDEX_KEY = "articles/index.json";
 
 function articleKey(slug: string): string {
   return `${R2_PREFIX}${slug}.json`;
@@ -51,9 +52,45 @@ export async function getDynamicArticle(
   try {
     const raw = await object.text();
     return JSON.parse(raw) as DynamicArticle;
-  } catch {
+  } catch (err) {
+    console.error(`Failed to parse dynamic article "${slug}":`, err);
     return null;
   }
+}
+
+async function rebuildIndex(bucket: R2Bucket): Promise<DynamicArticle[]> {
+  const articles: DynamicArticle[] = [];
+  let cursor: string | undefined = undefined;
+
+  do {
+    const listed: R2Objects = await bucket.list({
+      prefix: R2_PREFIX,
+      cursor,
+    });
+
+    for (const obj of listed.objects) {
+      if (obj.key === INDEX_KEY || !obj.key.endsWith(".json")) continue;
+      const item = await bucket.get(obj.key);
+      if (!item) continue;
+      try {
+        const raw = await item.text();
+        articles.push(JSON.parse(raw) as DynamicArticle);
+      } catch (err) {
+        console.error(`Failed to parse article object "${obj.key}":`, err);
+      }
+    }
+
+    cursor = listed.truncated ? listed.cursor : undefined;
+  } while (cursor);
+
+  await writeIndex(bucket, articles);
+  return articles;
+}
+
+async function writeIndex(bucket: R2Bucket, articles: DynamicArticle[]): Promise<void> {
+  await bucket.put(INDEX_KEY, JSON.stringify(articles), {
+    httpMetadata: { contentType: "application/json; charset=utf-8" },
+  });
 }
 
 export async function putDynamicArticle(
@@ -69,6 +106,12 @@ export async function putDynamicArticle(
       updatedAt: article.updatedAt || new Date().toISOString(),
     },
   });
+
+  // Update index
+  const current = await listDynamicArticles(bucket);
+  const filtered = current.filter((a) => a.slug !== article.slug);
+  filtered.push(article);
+  await writeIndex(bucket, filtered);
 }
 
 export async function deleteDynamicArticle(
@@ -79,6 +122,12 @@ export async function deleteDynamicArticle(
   const exists = await bucket.head(key);
   if (!exists) return false;
   await bucket.delete(key);
+
+  // Update index
+  const current = await listDynamicArticles(bucket);
+  const filtered = current.filter((a) => a.slug !== slug);
+  await writeIndex(bucket, filtered);
+
   return true;
 }
 
@@ -86,18 +135,16 @@ export async function listDynamicArticles(
   bucket: R2Bucket | undefined,
 ): Promise<DynamicArticle[]> {
   if (!bucket) return [];
-  const listed = await bucket.list({ prefix: R2_PREFIX });
-  const articles: DynamicArticle[] = [];
-  for (const obj of listed.objects) {
-    if (!obj.key.endsWith(".json")) continue;
-    const item = await bucket.get(obj.key);
-    if (!item) continue;
+
+  const indexObj = await bucket.get(INDEX_KEY);
+  if (indexObj) {
     try {
-      const raw = await item.text();
-      articles.push(JSON.parse(raw) as DynamicArticle);
-    } catch {
-      // Skip malformed records
+      const raw = await indexObj.text();
+      return JSON.parse(raw) as DynamicArticle[];
+    } catch (err) {
+      console.error("Index file corrupt, rebuilding from bucket:", err);
     }
   }
-  return articles;
+
+  return await rebuildIndex(bucket);
 }
