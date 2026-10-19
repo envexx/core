@@ -59,6 +59,7 @@ export type ArticleSummary = {
   excerpt: string;
   readTime: number;
   date: string | null;
+  updatedAt?: string;
   lang: Lang;
   imageUrl?: string;
   imageAlt?: string;
@@ -101,6 +102,8 @@ type GenericArticle = (typeof sourceArticles)[number] | DynamicArticle;
 function toSummary(article: GenericArticle, lang: Lang, isDynamic = false): ArticleSummary {
   const hasImage = "imageUrl" in article && typeof article.imageUrl === "string";
   const hasImageAlt = "imageAlt" in article && article.imageAlt;
+  const updatedAt = "updatedAt" in article && typeof article.updatedAt === "string" ? article.updatedAt : undefined;
+
   return {
     slug: article.slug,
     path: `/blog/${article.slug}`,
@@ -110,6 +113,7 @@ function toSummary(article: GenericArticle, lang: Lang, isDynamic = false): Arti
     excerpt: pick(article.excerpt, lang),
     readTime: article.readTime,
     date: article.date ?? null,
+    ...(updatedAt ? { updatedAt } : {}),
     lang,
     ...(hasImage ? { imageUrl: (article as DynamicArticle).imageUrl } : {}),
     ...(hasImageAlt ? { imageAlt: pick((article as DynamicArticle).imageAlt!, lang) } : {}),
@@ -155,9 +159,14 @@ export async function listAllArticles(
   bucket: R2Bucket | undefined,
   lang: Lang = DEFAULT_LANG,
 ): Promise<ArticleSummary[]> {
-  const dynamic = await listDynamicArticles(bucket);
-  const dynamicSlugs = new Set(dynamic.map((d) => d.slug));
+  let dynamic: DynamicArticle[] = [];
+  try {
+    dynamic = await listDynamicArticles(bucket);
+  } catch (err) {
+    console.error("Failed to list dynamic articles from R2, falling back to static:", err);
+  }
 
+  const dynamicSlugs = new Set(dynamic.map((d) => d.slug));
   const items: ArticleSummary[] = [];
 
   // Add dynamic articles
@@ -195,9 +204,15 @@ export async function findArticle(
   slug: string,
   lang: Lang = DEFAULT_LANG,
 ): Promise<ArticleDetail | null> {
-  const dyn = await getDynamicArticle(bucket, slug);
-  if (dyn) {
-    return toDetail(dyn, lang, true);
+  if (bucket) {
+    try {
+      const dyn = await getDynamicArticle(bucket, slug);
+      if (dyn) {
+        return toDetail(dyn, lang, true);
+      }
+    } catch (err) {
+      console.error(`Error fetching dynamic article "${slug}" from R2, trying static fallback:`, err);
+    }
   }
   return getArticle(slug, lang);
 }

@@ -9,13 +9,11 @@ import {
   deleteDynamicArticle,
   getDynamicArticle,
   putDynamicArticle,
-  type DynamicArticle,
 } from "./storage";
 import {
   isValidSlug,
   validateArticlePayload,
   validateImageUpload,
-  ALLOWED_IMAGE_MIME_TYPES,
 } from "./validation";
 import { jsonResponse, preflightResponse, textResponse } from "./http";
 import { resolveSeo, type SeoConfig } from "./seo";
@@ -101,6 +99,11 @@ function buildAssetUrl(key: string, env: Env, siteUrl: string): string {
   return `${siteUrl}/uploads/${key}`;
 }
 
+export function isAllowedUploadKey(key: string): boolean {
+  if (!key || typeof key !== "string") return false;
+  return key.startsWith("images/");
+}
+
 async function seoResponse(
   target: string,
   lang: Lang,
@@ -129,10 +132,13 @@ export default {
     }
 
     // -------------------------------------------------------------------------
-    // Public uploads route: serve images directly if R2_PUBLIC_URL is not set
+    // Public uploads route: only images/ allowed, reject articles/... or other keys
     // -------------------------------------------------------------------------
     if (request.method === "GET" && pathname.startsWith("/uploads/")) {
       const key = pathname.slice("/uploads/".length);
+      if (!isAllowedUploadKey(key)) {
+        return notFound(`Asset '${key}' not found`, request, env, siteUrl);
+      }
       if (!env.BLOG_BUCKET) {
         return notFound("R2 bucket is not configured", request, env, siteUrl);
       }
@@ -169,25 +175,19 @@ export default {
         );
       }
 
-      // 1. Upload image: POST /api/blog/:slug/image OR POST /api/uploads
+      // 1. Upload blog image: POST /api/blog/:slug/image
       const isSlugImageUpload =
         request.method === "POST" &&
         pathname.startsWith("/api/blog/") &&
         pathname.endsWith("/image");
-      const isGeneralUpload = request.method === "POST" && pathname === "/api/uploads";
 
-      if (isSlugImageUpload || isGeneralUpload) {
-        let slugPrefix = "general";
-        if (isSlugImageUpload) {
-          const rawSlug = pathname.slice("/api/blog/".length, -"/image".length).replace(/\/+$/, "");
-          if (!isValidSlug(rawSlug)) {
-            return badRequest(`Invalid slug '${rawSlug}' in upload URL`, request, env, siteUrl);
-          }
-          slugPrefix = rawSlug;
+      if (isSlugImageUpload) {
+        const rawSlug = pathname.slice("/api/blog/".length, -"/image".length).replace(/\/+$/, "");
+        if (!isValidSlug(rawSlug)) {
+          return badRequest(`Invalid slug '${rawSlug}' in upload URL`, request, env, siteUrl);
         }
 
         const contentType = request.headers.get("content-type") || "";
-        const contentLength = parseInt(request.headers.get("content-length") || "0", 10);
 
         let fileBuffer: ArrayBuffer;
         let mimeType: string = contentType.split(";")[0].trim().toLowerCase();
@@ -226,12 +226,12 @@ export default {
         const ext = extMap[mimeType] || "bin";
         const timestamp = Date.now();
         const randomHex = Math.random().toString(16).substring(2, 8);
-        const objectKey = `images/${slugPrefix}/${timestamp}-${randomHex}.${ext}`;
+        const objectKey = `images/${rawSlug}/${timestamp}-${randomHex}.${ext}`;
 
         await env.BLOG_BUCKET.put(objectKey, fileBuffer, {
           httpMetadata: { contentType: mimeType },
           customMetadata: {
-            slug: slugPrefix,
+            slug: rawSlug,
             uploadedAt: new Date().toISOString(),
             ...(originalFileName ? { originalFileName } : {}),
           },
@@ -292,9 +292,8 @@ export default {
           {
             status: "created",
             article: withUrl(siteUrl, {
-              slug: article.slug,
-              path: `/blog/${article.slug}`,
               ...article,
+              path: `/blog/${article.slug}`,
             }),
           },
           201,
@@ -334,9 +333,8 @@ export default {
           {
             status: "updated",
             article: withUrl(siteUrl, {
-              slug: article.slug,
-              path: `/blog/${article.slug}`,
               ...article,
+              path: `/blog/${article.slug}`,
             }),
           },
           200,

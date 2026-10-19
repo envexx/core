@@ -3,15 +3,15 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "WebWorker"],
-    "types": [],
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types", "node"],
     "strict": true,
-    "noEmit": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    "noEmit": true,
     "isolatedModules": true,
+    "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "../../client/src/lib/**/*.ts"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "../../client/src/lib/**/*.ts"]
 }

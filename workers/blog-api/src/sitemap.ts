@@ -31,9 +31,12 @@ export async function buildSitemapEntries(
       page(`/blog/kategori/${category.slug}`, "weekly", "0.6"),
     ),
     ...listServices("id").map((service) => page(service.path, "monthly", "0.8")),
-    ...allArticles.map((article) =>
-      page(article.path, "monthly", "0.8", article.date ?? fallbackLastmod),
-    ),
+    ...allArticles.map((article) => {
+      const articleLastmod = article.updatedAt
+        ? article.updatedAt.slice(0, 10)
+        : (article.date ?? fallbackLastmod);
+      return page(article.path, "monthly", "0.8", articleLastmod);
+    }),
   ];
 }
 

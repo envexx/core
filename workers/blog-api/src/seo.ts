@@ -269,6 +269,9 @@ function buildArticleLd(
   const canonical = absolute(config.siteUrl, descriptor.path);
   const imageToUse = resolvedImage || config.ogImage;
 
+  const datePublished = article.date || undefined;
+  const dateModified = article.updatedAt || article.date || undefined;
+
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -278,7 +281,8 @@ function buildArticleLd(
     url: canonical,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     articleSection: article.category,
-    ...(article.date ? { datePublished: article.date, dateModified: article.date } : {}),
+    ...(datePublished ? { datePublished } : {}),
+    ...(dateModified ? { dateModified } : {}),
     author: { "@type": "Organization", name: config.siteName, url: config.siteUrl },
     publisher: {
       "@type": "Organization",

@@ -16,8 +16,7 @@ yang disimpan di **Cloudflare R2**.
 | `PUT` | `/api/blog/:slug` | **Bearer** | Perbarui artikel dinamis (JSON) |
 | `DELETE` | `/api/blog/:slug` | **Bearer** | Hapus artikel dinamis dari R2 |
 | `POST` | `/api/blog/:slug/image` | **Bearer** | Upload gambar artikel (maks 5MB, binary/multipart) |
-| `POST` | `/api/uploads` | **Bearer** | Upload aset umum ke R2 |
-| `GET` | `/uploads/:key` | Publik | Sajikan file/gambar dari R2 (jika tanpa custom domain) |
+| `GET` | `/uploads/:key` | Publik | Sajikan gambar publik dari R2 (hanya key berawalan `images/`) |
 | `GET` | `/api/seo/:slug` | Publik | Metadata SEO untuk artikel |
 | `GET` | `/api/seo?path=/...` | Publik | Metadata SEO halaman (termasuk artikel dinamis) |
 | `GET` | `/sitemap.xml` | Publik | Sitemap dinamis (termasuk artikel dinamis) |
@@ -27,13 +26,14 @@ yang disimpan di **Cloudflare R2**.
 
 ## Arsitektur Penyimpanan: Cloudflare R2
 
-Penyimpanan metadata artikel dinamis menggunakan **R2 JSON** (`articles/<slug>.json`) dan folder aset `images/<slug>/...` pada satu bucket R2 yang sama (`BLOG_BUCKET`).
+Penyimpanan metadata artikel dinamis menggunakan **R2 JSON** (`articles/<slug>.json`), indeks ringkas (`articles/index.json`), dan folder aset `images/<slug>/...` pada satu bucket R2 yang sama (`BLOG_BUCKET`).
 
 **Alasan pemilihan R2 dibanding KV / D1:**
 1. **Paling hemat resource & tanpa konfigurasi ganda**: Kebutuhan upload file gambar mewajibkan keberadaan bucket R2. Memanfaatkan R2 untuk menyimpan metadata JSON artikel berarti hanya memerlukan 1 resource Cloudflare tanpa perlu membuat database D1 atau namespace KV tambahan.
 2. **Tidak ada batas ukuran 25MB database atau batas per-key KV 25MB**: R2 mendukung objek hingga 5 GB (gambar blog 5 MB dan JSON dokumen panjang tersimpan aman).
 3. **Biaya & kuota gratis Cloudflare R2**: 10 GB penyimpanan gratis per bulan, 10 juta permintaan baca Class B gratis, dan 1 juta Class A per bulan tanpa biaya egress bandwidth.
 4. **Statis lama tetap utuh**: Artikel hardcoded lama di `blog-content.ts` tetap menjadi baseline andal tanpa dependensi storage, sedangkan artikel R2 otomatis ditimpa/ditambahkan di atasnya.
+5. **Indeks ringkas (`articles/index.json`)**: Mencegah pola baca N+1 saat me-list artikel di `/api/blog`. Indeks otomatis dimutakhirkan pada operasi tulis dan dibangun ulang secara aman jika belum tersedia.
 
 ---
 
@@ -55,7 +55,7 @@ npx wrangler secret put BLOG_API_TOKEN
 ```
 
 ### 3. (Opsional) Public Domain R2
-Secara default, gambar dapat diakses langsung melalui endpoint Worker `/uploads/:key`.
+Secara default, gambar dapat diakses langsung melalui endpoint Worker `/uploads/:key` (hanya path `images/*`).
 Bila bucket R2 dihubungkan ke custom domain (mis. `assets.coresolution.digital`), atur variabel `R2_PUBLIC_URL` di `wrangler.toml` atau via environment:
 
 ```toml
@@ -222,8 +222,9 @@ curl -X DELETE "https://coresolution.digital/api/blog/integrasi-ai-customer-serv
    cp .dev.vars.example .dev.vars
    ```
 2. Pastikan `BLOG_API_TOKEN` terisi di `.dev.vars`.
-3. Jalankan typecheck & dev server:
+3. Jalankan test, typecheck, & dev server:
    ```bash
+   npm test
    npm run typecheck
    npm run dev
    ```
