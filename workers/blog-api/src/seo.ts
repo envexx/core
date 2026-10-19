@@ -1,7 +1,7 @@
 import {
   categoryLabel,
   categories,
-  getArticle,
+  findArticle,
   getService,
   type ArticleDetail,
   type Lang,
@@ -86,8 +86,12 @@ function homeCrumb(lang: Lang): Crumb {
   return { name: label(text.home, lang), path: "/" };
 }
 
-/** Resolve a request path to a page descriptor, or null when nothing matches. */
-export function resolvePage(rawPath: string, lang: Lang): PageDescriptor | null {
+/** Resolve a request path to a page descriptor, supporting dynamic articles from R2. */
+export async function resolvePage(
+  rawPath: string,
+  lang: Lang,
+  bucket?: R2Bucket,
+): Promise<PageDescriptor | null> {
   const path = normalizePath(rawPath);
 
   if (path === "/") {
@@ -161,7 +165,7 @@ export function resolvePage(rawPath: string, lang: Lang): PageDescriptor | null 
 
   if (path.startsWith("/blog/")) {
     const slug = decodeURIComponent(path.slice("/blog/".length)).replace(/\/+$/, "");
-    const article = getArticle(slug, lang);
+    const article = await findArticle(bucket, slug, lang);
     if (!article) return null;
     const categoryName = categoryLabel(article.category, lang);
     return {
@@ -183,8 +187,13 @@ export function resolvePage(rawPath: string, lang: Lang): PageDescriptor | null 
 }
 
 /** Build complete SEO metadata for a path, or null when the path is unknown. */
-export function resolveSeo(rawPath: string, lang: Lang, config: SeoConfig): SeoResult | null {
-  const descriptor = resolvePage(rawPath, lang);
+export async function resolveSeo(
+  rawPath: string,
+  lang: Lang,
+  config: SeoConfig,
+  bucket?: R2Bucket,
+): Promise<SeoResult | null> {
+  const descriptor = await resolvePage(rawPath, lang, bucket);
   return descriptor ? buildSeo(descriptor, lang, config) : null;
 }
 
@@ -194,7 +203,8 @@ export function buildSeo(descriptor: PageDescriptor, lang: Lang, config: SeoConf
     ? descriptor.title
     : `${descriptor.title} — ${config.siteName}`;
   const locale = lang === "en" ? "en_US" : config.locale;
-  const image = config.ogImage;
+  // If article has a custom imageUrl, prefer it over default ogImage
+  const image = descriptor.article?.imageUrl || config.ogImage;
 
   const openGraph: SeoResult["openGraph"] = {
     title,
@@ -218,7 +228,7 @@ export function buildSeo(descriptor: PageDescriptor, lang: Lang, config: SeoConf
   };
 
   if (descriptor.article) {
-    jsonLd.Article = buildArticleLd(descriptor.article, descriptor, lang, config);
+    jsonLd.Article = buildArticleLd(descriptor.article, descriptor, lang, config, image);
   } else {
     jsonLd.WebPage = buildWebPageLd(descriptor, title, lang, config);
   }
@@ -254,8 +264,11 @@ function buildArticleLd(
   descriptor: PageDescriptor,
   lang: Lang,
   config: SeoConfig,
+  resolvedImage?: string,
 ): JsonLd {
   const canonical = absolute(config.siteUrl, descriptor.path);
+  const imageToUse = resolvedImage || config.ogImage;
+
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -275,7 +288,7 @@ function buildArticleLd(
         ? { logo: { "@type": "ImageObject", url: config.ogImage } }
         : {}),
     },
-    ...(config.ogImage ? { image: [config.ogImage] } : {}),
+    ...(imageToUse ? { image: [imageToUse] } : {}),
     isPartOf: {
       "@type": "Blog",
       name: `${config.siteName} Blog`,
