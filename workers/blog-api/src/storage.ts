@@ -11,6 +11,13 @@ import type { LocalCopy } from "../../../client/src/lib/service-content";
 export const ALLOWED_CATEGORIES = ["AI Systems", "Automation", "Case Studies"] as const;
 export type BlogCategory = (typeof ALLOWED_CATEGORIES)[number];
 
+export type ArticleSource = {
+  title: string;
+  url: string;
+  publisher?: string;
+  date?: string;
+};
+
 export type DynamicArticleSection = {
   heading: LocalCopy;
   paragraphs: LocalCopy[];
@@ -31,6 +38,7 @@ export type DynamicArticle = {
   service: string;
   imageUrl?: string;
   imageAlt?: LocalCopy;
+  sources?: ArticleSource[];
   createdAt?: string;
   updatedAt?: string;
 };
