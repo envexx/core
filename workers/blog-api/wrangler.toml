@@ -7,6 +7,15 @@ main = "src/index.ts"
 compatibility_date = "2025-06-01"
 workers_dev = true
 
+# Hanya jalur blog yang diarahkan ke Worker. /api/contact dan /api/testimonials
+# tetap ditangani situs, jadi jangan memakai catch-all /api/*.
+routes = [
+  { pattern = "coresolution.digital/api/health", zone_name = "coresolution.digital" },
+  { pattern = "coresolution.digital/api/blog*", zone_name = "coresolution.digital" },
+  { pattern = "coresolution.digital/api/seo*", zone_name = "coresolution.digital" },
+  { pattern = "coresolution.digital/uploads/*", zone_name = "coresolution.digital" },
+]
+
 [vars]
 # Canonical origin used for absolute URLs (canonical, OpenGraph, JSON-LD, sitemap).
 # Must match the host actually served by the site.
