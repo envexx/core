@@ -15,6 +15,7 @@ import {
 import {
   getDynamicArticle,
   listDynamicArticles,
+  type ArticleSource,
   type DynamicArticle,
 } from "./storage";
 
@@ -86,6 +87,7 @@ export type ArticleDetail = ArticleSummary & {
   service: RelatedService | null;
   diagram: string[];
   availableLangs: readonly Lang[];
+  sources?: ArticleSource[];
 };
 
 export type ServiceSummary = {
@@ -124,6 +126,9 @@ function toSummary(article: GenericArticle, lang: Lang, isDynamic = false): Arti
 export function toDetail(article: GenericArticle, lang: Lang, isDynamic = false): ArticleDetail {
   const related = sourceServices.find((item) => item.slug === article.service) ?? null;
   const takeaway = pick(article.takeaway, lang);
+  const sources = "sources" in article && Array.isArray(article.sources) && article.sources.length > 0
+    ? article.sources
+    : undefined;
 
   return {
     ...toSummary(article, lang, isDynamic),
@@ -146,6 +151,7 @@ export function toDetail(article: GenericArticle, lang: Lang, isDynamic = false)
       : null,
     diagram: article.diagram || [],
     availableLangs: LANGS,
+    ...(sources ? { sources } : {}),
   };
 }
 
