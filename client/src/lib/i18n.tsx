@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+﻿import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 
 export type Language = "id" | "en";
 
@@ -32,15 +32,15 @@ const translations = {
     title1: { id: "Custom Development", en: "Custom Development" },
     title2: { id: "Sesuai Kebutuhan Anda", en: "Tailored to Your Needs" },
     subtitle: {
-      id: "Pengembangan solusi digital yang disesuaikan 100% dengan business process Anda. Delivery cepat tanpa kompromi kualitas, dengan harga kompetitif mulai dari Rp 20 juta.",
-      en: "Digital solutions 100% tailored to your business process. Fast delivery without compromising quality, with competitive pricing starting from IDR 20 million.",
+      id: "Pengembangan solusi digital yang disesuaikan dengan proses bisnis Anda. Lingkup, harga, dan timeline ditetapkan setelah sesi pemetaan kebutuhan.",
+      en: "Digital solutions built around your business process. Scope, price, and timeline are agreed after a needs assessment.",
     },
     web: { id: "Aplikasi web custom untuk berbagai industri dengan teknologi modern dan performa optimal.", en: "Custom web applications for various industries with modern technology and optimal performance." },
     mobile: { id: "Aplikasi mobile native Android yang responsif dan user-friendly.", en: "Responsive and user-friendly native Android mobile applications." },
     enterprise: { id: "Sistem terintegrasi untuk kebutuhan korporasi dengan arsitektur yang scalable.", en: "Integrated systems for corporate needs with scalable architecture." },
     consultation: { id: "Konsultasi transformasi digital dari perencanaan hingga implementasi.", en: "Digital transformation consultation from planning to implementation." },
-    pricingTitle: { id: "Range Project: Rp 20 - 50 Juta", en: "Project Range: IDR 20 - 50 Million" },
-    pricingDesc: { id: "Tergantung kompleksitas. Timeline 2-6 bulan. Konsultasi awal gratis.", en: "Depends on complexity. Timeline 2-6 months. Free initial consultation." },
+    pricingTitle: { id: "Harga Sesuai Lingkup", en: "Pricing Set by Scope" },
+    pricingDesc: { id: "Jumlah fitur dan integrasi menentukan biaya. Konsultasi awal gratis, penawaran menyusul setelah pemetaan kebutuhan.", en: "Cost depends on how many features and integrations you need. The first consultation is free, and a quote follows the needs assessment." },
     pricingCta: { id: "Minta Penawaran", en: "Request Quote" },
   },
   products: {
@@ -239,3 +239,4 @@ export function useI18n() {
   if (!context) throw new Error("useI18n must be used within I18nProvider");
   return context;
 }
+
