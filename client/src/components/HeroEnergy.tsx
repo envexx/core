@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
-import { useInView } from "motion/react";
 
 type EnergyPath = { source: string; d: string; track: string; side: number; xs: number[]; ys: number[] };
 type Geometry = { width: number; height: number; paths: EnergyPath[]; trunks: string[] };
@@ -15,7 +14,14 @@ export default function HeroEnergy({ heroRef }: { heroRef: RefObject<HTMLElement
     preference.addEventListener("change", update);
     return () => preference.removeEventListener("change", update);
   }, []);
-  const visible = useInView(heroRef, { amount: 0.1 });
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.1 });
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [heroRef]);
   const [geometry, setGeometry] = useState<Geometry>({ width: 1, height: 1, paths: [], trunks: [] });
   const liveGeometry = useRef(geometry);
   useEffect(() => {

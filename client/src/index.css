@@ -380,3 +380,14 @@
     scrollbar-width: none;
   }
 }
+
+/* Halo button rim + label motion (CSS-only so the entry bundle skips the motion runtime). */
+@keyframes halo-blob-primary { 0%, 100% { left: -5%; } 50% { left: 75%; } }
+@keyframes halo-blob-secondary { 0%, 100% { left: 65%; } 50% { left: 10%; } }
+@keyframes halo-blob-tertiary { 0%, 100% { left: 25%; } 50% { left: 55%; } }
+@keyframes halo-char-in { from { opacity: 0; } to { opacity: 1; } }
+.halo-blob { animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+.halo-blob-primary { animation-name: halo-blob-primary; animation-duration: 6s; }
+.halo-blob-secondary { animation-name: halo-blob-secondary; animation-duration: 5s; }
+.halo-blob-tertiary { animation-name: halo-blob-tertiary; animation-duration: 4s; }
+@media (prefers-reduced-motion: reduce) { .halo-blob { animation: none; } }

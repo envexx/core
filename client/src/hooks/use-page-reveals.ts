@@ -1,11 +1,10 @@
 import { useEffect, type RefObject } from "react";
-import { gsap } from "gsap";
 
 export function usePageReveals(rootRef: RefObject<HTMLElement>) {
   useEffect(() => {
     let active = true;
-    let media: ReturnType<typeof gsap.matchMedia> | undefined;
-    import("gsap/ScrollTrigger").then(({ ScrollTrigger }) => {
+    let media: { add(query: string, fn: () => void | (() => void), scope?: unknown): void; revert(): void } | undefined;
+    Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ gsap }, { ScrollTrigger }]) => {
       if (!active || !rootRef.current) return;
       gsap.registerPlugin(ScrollTrigger);
       media = gsap.matchMedia();
@@ -29,4 +28,3 @@ export function usePageReveals(rootRef: RefObject<HTMLElement>) {
     return () => { active = false; media?.revert(); };
   }, [rootRef]);
 }
-

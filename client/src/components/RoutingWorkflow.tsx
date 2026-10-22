@@ -1,14 +1,14 @@
 import { useRef } from "react";
-import { useInView, useReducedMotion } from "motion/react";
 import { Check, ArrowRight, type LucideIcon } from "lucide-react";
+import { useInViewOnce, useReducedMotionPreference } from "@/hooks/use-reduced-motion";
 
 type Step = { icon: LucideIcon; title: string; description: string };
 
 /** Project-owned marketing diagram; no external workflow execution. */
 export default function RoutingWorkflow({ steps, results, resultLabel, compact = false }: { steps: Step[]; results: string[]; resultLabel: string; compact?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const visible = useInView(ref, { amount: 0.25 });
-  const reducedMotion = useReducedMotion();
+  const visible = useInViewOnce(ref, 0.25);
+  const reducedMotion = useReducedMotionPreference();
   return <div ref={ref} className={`simple-flow-layout routing-workflow${compact ? " routing-workflow-compact" : ""}`} data-playing={visible && !reducedMotion}>
     <ol className="simple-flow-steps">{steps.map((step, index) => <li className={`routing-step routing-step-${index}`} key={step.title}>
       <div className="simple-step-top"><span className="simple-step-icon"><step.icon size={19} /></span><span className="simple-step-number">0{index + 1}</span></div>

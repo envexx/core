@@ -1,45 +1,23 @@
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ComponentProps,
   type ReactNode,
 } from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
-import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 
 import { cn } from "@/lib/utils"
+import { useReducedMotionPreference } from "@/hooks/use-reduced-motion"
 
 const LABEL_STAGGER_SEC = 0.018
 const LABEL_CHAR_DURATION_SEC = 0.16
 const DEFAULT_LOADING_STAGGER_SEC = 0.038
 const DEFAULT_LOADING_CHAR_DURATION_SEC = 0.36
-const TRAILING_EXIT_DURATION_SEC = 0.2
 
-/** Layout spring: smooth width when label/spinner changes; bounce kept low per motion skill. */
-const layoutSpring = {
-  type: "spring" as const,
-  bounce: 0.12,
-  damping: 34,
-  stiffness: 420,
+function usePrefersReducedMotion() {
+  return useReducedMotionPreference()
 }
-
-const trailingExitTransition = (reduceMotion: boolean) => ({
-  duration: reduceMotion ? 0 : TRAILING_EXIT_DURATION_SEC,
-  ease: "easeOut" as const,
-})
-
-const trailingCrossfade = (reduceMotion: boolean) => ({
-  exit: {
-    opacity: reduceMotion ? 1 : 0,
-    scale: reduceMotion ? 1 : 0.88,
-  },
-  initial: {
-    opacity: reduceMotion ? 1 : 0,
-    scale: reduceMotion ? 1 : 0.88,
-  },
-})
 
 function ButtonSpinner({
   className,
@@ -107,37 +85,24 @@ function StaggeredTextLabel({
   }, [text])
 
   return (
-    <motion.span
-      animate="visible"
-      className="inline-flex items-center font-medium text-foreground text-sm tracking-tight antialiased"
-      initial="hidden"
-      key={text}
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: reduceMotion ? 0 : staggerSec,
-          },
-        },
-      }}
-    >
-      {chars.map((glyph) => (
-        <motion.span
+    <span className="inline-flex items-center font-medium text-foreground text-sm tracking-tight antialiased">
+      {chars.map((glyph, index) => (
+        <span
           className="inline-block whitespace-pre"
           key={glyph.key}
-          transition={{
-            duration: reduceMotion ? 0 : charDurationSec,
-            ease: "easeOut",
-          }}
-          variants={{
-            hidden: { opacity: reduceMotion ? 1 : 0 },
-            visible: { opacity: 1 },
-          }}
+          style={
+            reduceMotion
+              ? undefined
+              : {
+                  animation: `halo-char-in ${charDurationSec}s ease-out both`,
+                  animationDelay: `${index * staggerSec}s`,
+                }
+          }
         >
           {glyph.char}
-        </motion.span>
+        </span>
       ))}
-    </motion.span>
+    </span>
   )
 }
 
@@ -148,32 +113,21 @@ function TrailingLoadingSlot({
   reduceMotion: boolean
   reveal: boolean
 }) {
-  const cross = trailingCrossfade(reduceMotion)
   return (
-    <motion.div
-      animate={
-        reveal
-          ? { opacity: 1, scale: 1 }
-          : { opacity: 0, scale: reduceMotion ? 1 : 0.88 }
-      }
+    <div
       aria-hidden
       className={cn(
         "absolute inset-0 flex items-center justify-center rounded-full",
-        "pointer-events-none bg-muted text-muted-foreground shadow-foreground/10 shadow-sm ring-1 ring-foreground/10"
+        "pointer-events-none bg-muted text-muted-foreground shadow-foreground/10 shadow-sm ring-1 ring-foreground/10",
+        !reduceMotion && "transition-[opacity,transform] duration-200 ease-out"
       )}
-      exit={{ ...cross.exit, transition: trailingExitTransition(reduceMotion) }}
-      initial={cross.initial}
-      key="trailing-loading"
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : reveal
-            ? { ...layoutSpring }
-            : { duration: 0 }
-      }
+      style={{
+        opacity: reveal ? 1 : 0,
+        transform: reveal || reduceMotion ? "scale(1)" : "scale(0.88)",
+      }}
     >
       <ButtonSpinner reduceMotion={reduceMotion} />
-    </motion.div>
+    </div>
   )
 }
 
@@ -217,11 +171,9 @@ export function HaloButton({
 }: HaloButtonProps) {
   const [isFocused, setIsFocused] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  /** Spinner fades in only after outer `layout` width animation finishes (avoids leading the expansion). */
+  /** Spinner fades in after the width settles, so it does not lead the expansion. */
   const [trailingRevealReady, setTrailingRevealReady] = useState(false)
-  const reduceMotion = useReducedMotion() ?? false
-  const isLoadingRef = useRef(isLoading)
-  isLoadingRef.current = isLoading
+  const reduceMotion = usePrefersReducedMotion()
 
   useEffect(() => {
     if (!isLoading) {
@@ -230,17 +182,9 @@ export function HaloButton({
     }
     if (reduceMotion) {
       setTrailingRevealReady(true)
-    }
-  }, [isLoading, reduceMotion])
-
-  /** If layout completion never fires (e.g. zero delta), still reveal the spinner. */
-  useEffect(() => {
-    if (!isLoading || reduceMotion) {
       return
     }
-    const id = window.setTimeout(() => {
-      setTrailingRevealReady(true)
-    }, 480)
+    const id = window.setTimeout(() => setTrailingRevealReady(true), 480)
     return () => window.clearTimeout(id)
   }, [isLoading, reduceMotion])
 
@@ -260,17 +204,10 @@ export function HaloButton({
       primaryBg: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--ring)), hsl(var(--accent)), hsl(var(--primary)))",
       secondaryBg: "linear-gradient(90deg, hsl(var(--ring)), hsl(var(--primary)), hsl(var(--primary)))",
       tertiaryBg: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--ring)))",
-      primaryLeft: ["-5%", "75%", "-5%"],
-      secondaryLeft: ["65%", "10%", "65%"],
-      tertiaryLeft: ["25%", "55%", "25%"],
-      durationMain: 6,
-      durationSec: 5,
-      durationTer: 4,
     }
   }, [translucent, rimEmphasis])
 
   const labelIsString = typeof children === "string"
-  const showTrailing = isLoading
 
   const labelContent = (() => {
     if (isLoading) {
@@ -318,68 +255,35 @@ export function HaloButton({
   }
 
   return (
-    <motion.div
-      className={cn("relative inline-flex max-w-full", className)}
-      layout={!reduceMotion}
-      transition={reduceMotion ? undefined : { layout: layoutSpring }}
-      onLayoutAnimationComplete={() => {
-        if (isLoadingRef.current && !reduceMotion) {
-          setTrailingRevealReady(true)
-        }
-      }}
-    >
+    <div className={cn("relative inline-flex max-w-full", className)}>
       <div className="relative rounded-full p-px">
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
-          <motion.div
-            animate={{
-              opacity: borderGlow.opacityIdle,
-            }}
-            className="absolute inset-x-0 bottom-0 h-1/2"
-            transition={{ duration: 0.25, ease: "easeOut" }}
+          <div
+            className="absolute inset-x-0 bottom-0 h-1/2 transition-opacity duration-250 ease-out"
+            style={{ opacity: borderGlow.opacityIdle }}
           >
-            <motion.div
-              animate={{
-                left: borderGlow.primaryLeft,
-              }}
-              className="-bottom-4 absolute h-16 w-48 blur-xl"
-              style={{
-                background: borderGlow.primaryBg,
-              }}
-              transition={{
-                duration: reduceMotion ? 0 : borderGlow.durationMain,
-                repeat: reduceMotion ? 0 : Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-              }}
+            <div
+              className={cn(
+                "-bottom-4 absolute h-16 w-48 blur-xl",
+                !reduceMotion && "halo-blob halo-blob-primary"
+              )}
+              style={{ background: borderGlow.primaryBg }}
             />
-            <motion.div
-              animate={{
-                left: borderGlow.secondaryLeft,
-              }}
-              className="-bottom-3 absolute h-12 w-32 blur-lg"
-              style={{
-                background: borderGlow.secondaryBg,
-              }}
-              transition={{
-                duration: reduceMotion ? 0 : borderGlow.durationSec,
-                repeat: reduceMotion ? 0 : Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-              }}
+            <div
+              className={cn(
+                "-bottom-3 absolute h-12 w-32 blur-lg",
+                !reduceMotion && "halo-blob halo-blob-secondary"
+              )}
+              style={{ background: borderGlow.secondaryBg }}
             />
-            <motion.div
-              animate={{
-                left: borderGlow.tertiaryLeft,
-              }}
-              className="-bottom-2 absolute h-10 w-24 blur-lg"
-              style={{
-                background: borderGlow.tertiaryBg,
-              }}
-              transition={{
-                duration: reduceMotion ? 0 : borderGlow.durationTer,
-                repeat: reduceMotion ? 0 : Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-              }}
+            <div
+              className={cn(
+                "-bottom-2 absolute h-10 w-24 blur-lg",
+                !reduceMotion && "halo-blob halo-blob-tertiary"
+              )}
+              style={{ background: borderGlow.tertiaryBg }}
             />
-          </motion.div>
+          </div>
         </div>
 
         <ButtonPrimitive
@@ -424,20 +328,16 @@ export function HaloButton({
             {labelContent}
           </span>
 
-          {showTrailing ? (
+          {isLoading ? (
             <div className="relative size-7 shrink-0">
-              <AnimatePresence initial={false} mode="popLayout">
-                <TrailingLoadingSlot
-                  reduceMotion={reduceMotion}
-                  reveal={trailingRevealReady}
-                />
-              </AnimatePresence>
+              <TrailingLoadingSlot
+                reduceMotion={reduceMotion}
+                reveal={trailingRevealReady}
+              />
             </div>
           ) : null}
         </ButtonPrimitive>
       </div>
-    </motion.div>
+    </div>
   )
 }
-
-
