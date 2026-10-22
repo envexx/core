@@ -6,3 +6,4 @@ vite.config.ts.*
 dist/
 client/dist/# Artefak verifikasi lokal (playwright-cli)
 .playwright-cli/
+.vercel

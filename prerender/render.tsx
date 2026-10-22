@@ -10,6 +10,7 @@ import { articles, blogCategories } from "../client/src/lib/blog-content";
 import { services } from "../client/src/lib/service-content";
 
 const SITE = "https://www.coresolution.digital";
+const BLOG_API = "https://coresolution.digital/api/blog?lang=id";
 const OUT = resolve("dist/public");
 const OG_IMAGE = `${SITE}/images/core-agent-workspace.webp`;
 
@@ -35,7 +36,15 @@ const stub: any = {
 (globalThis as any).window = stub;
 (globalThis as any).localStorage = stub.localStorage;
 
-type Meta = { path: string; title: string; description: string; type?: string; article?: { date: string } };
+type Meta = {
+  path: string;
+  title: string;
+  description: string;
+  type?: string;
+  article?: { date: string };
+  image?: string;
+  imageAlt?: string;
+};
 
 const clip = (s: string, n = 155) => (s.length <= n ? s : `${s.slice(0, n - 1).trimEnd()}…`);
 const esc = (s: string) =>
@@ -79,6 +88,39 @@ const routes: Meta[] = [
   })),
 ];
 
+type ApiArticle = {
+  path?: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  imageUrl?: string;
+  imageAlt?: string;
+};
+
+// Articles published through the blog API live in R2, not in the bundle. Without
+// this fetch every new slug falls back to index.html and inherits the homepage
+// canonical. A failed fetch only costs those newest articles, so it warns.
+async function apiRoutes(): Promise<Meta[]> {
+  try {
+    const res = await fetch(BLOG_API);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = (await res.json()) as { items?: ApiArticle[] };
+    return (data.items ?? []).map((article) => ({
+      path: article.path ?? `/blog/${article.slug}`,
+      title: `${article.title} | CORE Solution Digital`,
+      description: clip(article.excerpt),
+      type: "article",
+      article: { date: article.date },
+      image: article.imageUrl,
+      imageAlt: article.imageAlt,
+    }));
+  } catch (error) {
+    console.warn(`prerender: blog API unreachable, writing bundled routes only (${error})`);
+    return [];
+  }
+}
+
 const template = readFileSync(resolve(OUT, "index.html"), "utf8")
   // Re-running the script must not stack tags on top of the previous run's output.
   .replace(/^.*(property="og:url"|property="og:image"|name="twitter:image"|property="article:published_time").*\n/gm, "")
@@ -111,6 +153,9 @@ function render(path: string): Promise<string> {
 }
 
 async function main() {
+const bundled = new Set(routes.map((route) => route.path));
+routes.push(...(await apiRoutes()).filter((route) => !bundled.has(route.path)));
+
 for (const meta of routes) {
   stub.location.pathname = meta.path;
   const url = meta.path === "/" ? SITE : `${SITE}${meta.path}`;
@@ -142,14 +187,21 @@ for (const meta of routes) {
     )
     .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
 
+  const image = meta.image ?? OG_IMAGE;
+  const imageAlt = meta.imageAlt ?? "CORE Solution Digital - AI agent dan otomasi proses bisnis";
   const extra = [
     `<meta property="og:url" content="${url}" />`,
-    `<meta property="og:image" content="${OG_IMAGE}" />`,
-    `<meta property="og:image:type" content="image/webp" />`,
-    `<meta property="og:image:width" content="1200" />`,
-    `<meta property="og:image:height" content="630" />`,
-    `<meta property="og:image:alt" content="CORE Solution Digital - AI agent dan otomasi proses bisnis" />`,
-    `<meta name="twitter:image" content="${OG_IMAGE}" />`,
+    `<meta property="og:image" content="${image}" />`,
+    // Only the bundled default has known 1200x630 dimensions.
+    ...(image === OG_IMAGE
+      ? [
+          `<meta property="og:image:type" content="image/webp" />`,
+          `<meta property="og:image:width" content="1200" />`,
+          `<meta property="og:image:height" content="630" />`,
+        ]
+      : []),
+    `<meta property="og:image:alt" content="${esc(imageAlt)}" />`,
+    `<meta name="twitter:image" content="${image}" />`,
   ];
   if (meta.article) extra.push(`<meta property="article:published_time" content="${meta.article.date}" />`);
   if (meta.type === "article") {
@@ -161,7 +213,7 @@ for (const meta of routes) {
         description: meta.description,
         datePublished: meta.article?.date,
         url,
-        image: OG_IMAGE,
+        image: `${image}`,
         author: { "@type": "Organization", name: "CORE Solution Digital", url: SITE },
         publisher: { "@type": "Organization", name: "CORE Solution Digital", url: SITE },
       })}</script>`,
