@@ -230,6 +230,12 @@ export function BlogArticle({ slug }: { slug: string }) {
     const controller = new AbortController();
 
     const fallbackToStatic = () => {
+      // A failed or slow fetch must not replace prerendered content with a 404.
+      if (seeded) {
+        setNotFound(false);
+        setLoading(false);
+        return;
+      }
       const fallback = articles.find((item) => item.slug === slug);
       if (fallback) {
         setArticle(normalizeStaticDetail(fallback, lang));
