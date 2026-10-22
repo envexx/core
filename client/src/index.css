@@ -8,6 +8,15 @@
 @import "./blog-architecture.css";
 @import "./hero-energy.css";
 @tailwind base;
+
+/* Self-hosted Geist variable font: one file covers every weight the site uses. */
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("/fonts/geist-latin.woff2") format("woff2");
+}
 @tailwind components;
 @tailwind utilities;
 
