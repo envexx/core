@@ -5,7 +5,8 @@ export function usePageReveals(rootRef: RefObject<HTMLElement>) {
     let active = true;
     let media: { add(query: string, fn: () => void | (() => void), scope?: unknown): void; revert(): void } | undefined;
     Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ gsap }, { ScrollTrigger }]) => {
-      if (!active || !rootRef.current) return;
+      // Late arrival: skip reveals rather than hiding content that is already on screen.
+      if (!active || !rootRef.current || performance.now() > 1200) return;
       gsap.registerPlugin(ScrollTrigger);
       media = gsap.matchMedia();
       media.add("(prefers-reduced-motion: no-preference)", () => {

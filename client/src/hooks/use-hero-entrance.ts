@@ -7,7 +7,8 @@ export function useHeroEntrance(heroRef: RefObject<HTMLElement>, language: strin
     let media: { add(query: string, fn: () => void | (() => void), scope?: unknown): void; revert(): void } | undefined;
     // GSAP stays out of the entry chunk; entrance runs as soon as it arrives.
     import("gsap").then(({ gsap }) => {
-      if (!active || !heroRef.current) return;
+      // If GSAP arrives after first paint, animating from opacity 0 would hide visible content.
+      if (!active || !heroRef.current || performance.now() > 1200) return;
       media = gsap.matchMedia();
       media.add("(prefers-reduced-motion: no-preference)", () => {
         const timeline = gsap.timeline({ defaults: { ease: "power3.out", duration: .9 } });
