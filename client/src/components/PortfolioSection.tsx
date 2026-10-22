@@ -1,4 +1,4 @@
-import { ExternalLink, TrendingUp } from "lucide-react";
+﻿import { ExternalLink, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Project } from "@shared/schema";
 import { portfolioSeed } from "@shared/portfolio-data";
@@ -13,12 +13,12 @@ const projects: Project[] = portfolioSeed.map((project, index) => ({
 
 const caseStudiesData = {
   id: [
-    { industry: "Pendidikan", challenge: "Pengelolaan data siswa & administrasi manual yang memakan waktu", solution: "Custom web application dengan dashboard terintegrasi", result: "Efisiensi administrasi 60%, akses data real-time" },
+    { industry: "Pendidikan", challenge: "Pengelolaan data siswa & administrasi manual yang memakan waktu", solution: "Custom web application dengan dashboard terintegrasi", result: "Pencatatan siswa terpusat, data tersedia saat dibutuhkan" },
     { industry: "Healthcare", challenge: "Antrian pasien panjang, rekam medis terpisah-pisah", solution: "Platform manajemen terpadu dengan appointment system", result: "Pengurangan waktu tunggu, digitalisasi rekam medis" },
     { industry: "E-Commerce", challenge: "Interface kompleks, user engagement rendah", solution: "User-friendly dashboard dengan AI-assisted discovery", result: "User engagement meningkat, transaksi lebih smooth" },
   ],
   en: [
-    { industry: "Education", challenge: "Manual student data management consuming excessive time", solution: "Custom web application with integrated dashboard", result: "60% admin efficiency, real-time data access" },
+    { industry: "Education", challenge: "Manual student data management consuming excessive time", solution: "Custom web application with integrated dashboard", result: "Student records centralized, data available when needed" },
     { industry: "Healthcare", challenge: "Long patient queues, fragmented medical records", solution: "Unified management platform with appointment system", result: "Reduced wait times, digitized medical records" },
     { industry: "E-Commerce", challenge: "Complex interface, low user engagement", solution: "User-friendly dashboard with AI-assisted discovery", result: "Increased user engagement, smoother transactions" },
   ],
@@ -131,3 +131,4 @@ export default function PortfolioSection() {
     </section>
   );
 }
+
