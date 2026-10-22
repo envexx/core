@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://coresolution.digital/sitemap.xml
+Sitemap: https://www.coresolution.digital/sitemap.xml
