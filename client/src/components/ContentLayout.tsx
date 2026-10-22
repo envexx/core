@@ -1,13 +1,12 @@
 import { useEffect, type ReactNode } from "react";
 import { ArrowUpRight, ChevronRight } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { AgencyAction } from "@/components/ui/agency-action";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { useI18n } from "@/lib/i18n";
 
 export default function ContentLayout({ title, description, path, children }: { title: string; description: string; path: string; children: ReactNode }) {
-  const reducedMotion = useReducedMotion();
   useEffect(() => {
     const previousTitle = document.title;
     const updates = [
@@ -27,7 +26,7 @@ export default function ContentLayout({ title, description, path, children }: { 
     document.title = `${title} — CORE Solution Digital`;
     return () => { document.title = previousTitle; previous.forEach(({ element, attribute, old }) => { if (old !== null && old !== undefined) element?.setAttribute(attribute, old); }); };
   }, [title, description, path]);
-  return <div className="agency-site content-site min-h-screen"><Navbar /><motion.main initial={reducedMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : .45, ease: [0.22, 1, 0.36, 1] }}>{children}</motion.main><Footer /></div>;
+  return <div className="agency-site content-site min-h-screen"><Navbar /><motion.main initial={false} animate={{ opacity: 1, y: 0 }}>{children}</motion.main><Footer /></div>;
 }
 
 export function Breadcrumbs({ items }: { items: { label: string; href?: string }[] }) {

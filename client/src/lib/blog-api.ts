@@ -75,6 +75,23 @@ export interface ArticleView {
 const DEFAULT_API_BASE = "https://coresolution.digital/api";
 const REQUEST_TIMEOUT_MS = 6000;
 
+// The build prerenders from the API and embeds that payload in the page. Reading
+// it back makes the first client render identical to the static markup, so the
+// article never drops back to a spinner while the fetch is in flight.
+export type BlogSeed = { list?: BlogListResponse; article?: ApiArticleDetail };
+export const buildSeed: BlogSeed = {};
+
+export function blogSeed(): BlogSeed {
+  if (typeof document === "undefined") return buildSeed;
+  const element = document.getElementById("blog-seed");
+  if (!element?.textContent) return {};
+  try {
+    return JSON.parse(element.textContent) as BlogSeed;
+  } catch {
+    return {};
+  }
+}
+
 export function getBlogApiBase(): string {
   const envBase = (import.meta as unknown as { env?: { VITE_BLOG_API_BASE?: string } })
     .env?.VITE_BLOG_API_BASE;
@@ -253,6 +270,18 @@ export function normalizeApiDetail(item: ApiArticleDetail): ArticleView {
     service: resolveService(item.service),
     ...(sources && sources.length > 0 ? { sources } : {}),
   };
+}
+
+// Dates must be part of the static HTML on both the index and the article page.
+export function formatArticleDate(date: string | undefined, lang: Language): string {
+  if (!date) return "";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return new Intl.DateTimeFormat(lang === "id" ? "id-ID" : "en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(parsed);
 }
 
 export function sortArticles(list: ArticleView[]): ArticleView[] {

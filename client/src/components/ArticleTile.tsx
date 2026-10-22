@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight, Clock } from "lucide-react";
 import { useI18n, type Language } from "@/lib/i18n";
-import type { ArticleView } from "@/lib/blog-api";
+import { formatArticleDate, type ArticleView } from "@/lib/blog-api";
 import type { articles } from "@/lib/blog-content";
 import SystemIllustration from "./SystemIllustration";
 import {
@@ -49,6 +49,7 @@ export default function ArticleTile({ article }: { article: TileArticleInput }) 
   const excerpt = extractExcerpt(article, lang);
   const imageUrl = "imageUrl" in article ? article.imageUrl : undefined;
   const imageAlt = "imageAlt" in article ? article.imageAlt : undefined;
+  const dateLabel = formatArticleDate(article.date, lang);
 
   return (
     <CutoutCard className={`${cutoutCardSurfaceClassName} core-cutout-card`}>
@@ -143,6 +144,7 @@ export default function ArticleTile({ article }: { article: TileArticleInput }) 
                 </span>
                 <span className="text-muted-foreground inline-flex items-center gap-1 text-[10px]">
                   <Clock size={11} />
+                  {dateLabel && `${dateLabel} · `}
                   {article.readTime} {lang === "id" ? "menit" : "min"}
                 </span>
               </CutoutCardFooter>

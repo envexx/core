@@ -3,8 +3,10 @@ import { ArrowUpRight, ArrowLeft, Search, Clock } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { articles, pillarSlug, blogCategories } from "@/lib/blog-content";
 import {
+  blogSeed,
   fetchBlogList,
   fetchBlogArticle,
+  formatArticleDate,
   normalizeStaticSummary,
   normalizeApiSummary,
   normalizeStaticDetail,
@@ -23,9 +25,14 @@ export default function Blog({ categorySlug }: { categorySlug?: string }) {
     blogCategories.find((item) => item.slug === categorySlug)?.category ?? "all",
   );
   const [query, setQuery] = useState("");
-  const [articleList, setArticleList] = useState<ArticleView[]>(() =>
-    sortArticles(articles.map((item) => normalizeStaticSummary(item, lang))),
-  );
+  const [articleList, setArticleList] = useState<ArticleView[]>(() => {
+    const seed = blogSeed().list;
+    return sortArticles(
+      seed && seed.lang === lang && seed.items?.length
+        ? seed.items.map(normalizeApiSummary)
+        : articles.map((item) => normalizeStaticSummary(item, lang)),
+    );
+  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -207,10 +214,15 @@ export default function Blog({ categorySlug }: { categorySlug?: string }) {
 export function BlogArticle({ slug }: { slug: string }) {
   const { lang } = useI18n();
   const staticMatch = articles.find((item) => item.slug === slug);
+  const seedArticle = blogSeed().article;
+  const seeded =
+    seedArticle && seedArticle.slug === slug && seedArticle.lang === lang
+      ? normalizeApiDetail(seedArticle)
+      : null;
   const [article, setArticle] = useState<ArticleView | null>(() =>
-    staticMatch ? normalizeStaticDetail(staticMatch, lang) : null,
+    seeded ?? (staticMatch ? normalizeStaticDetail(staticMatch, lang) : null),
   );
-  const [loading, setLoading] = useState<boolean>(!staticMatch);
+  const [loading, setLoading] = useState<boolean>(!seeded && !staticMatch);
   const [notFound, setNotFound] = useState<boolean>(false);
 
   useEffect(() => {
@@ -230,7 +242,7 @@ export function BlogArticle({ slug }: { slug: string }) {
 
     if (staticMatch) {
       setArticle(normalizeStaticDetail(staticMatch, lang));
-    } else {
+    } else if (!article || article.slug !== slug) {
       setLoading(true);
     }
 
@@ -310,6 +322,7 @@ export function BlogArticle({ slug }: { slug: string }) {
           />
           <div className="article-meta">
             <span>{categoryLabel(article.category, lang)}</span>
+            {article.date && <span>{formatArticleDate(article.date, lang)}</span>}
             <span>
               <Clock size={13} />
               {article.readTime} {lang === "id" ? "menit baca" : "min read"}
