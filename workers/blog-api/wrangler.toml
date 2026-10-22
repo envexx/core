@@ -24,7 +24,7 @@ SITE_URL = "https://coresolution.digital"
 SITE_NAME = "CORE Solution Digital"
 SITE_LOCALE = "id_ID"
 # Default social preview image, relative to SITE_URL. Set to "" to omit.
-OG_IMAGE_PATH = "/images/core-agent-workspace.png"
+OG_IMAGE_PATH = "/images/core-agent-workspace.webp"
 # Optional fallback lastmod (YYYY-MM-DD) for pages without their own date.
 SITE_LAST_MODIFIED = "2026-10-09"
 # Comma-separated list of allowed browser origins (no wildcards).

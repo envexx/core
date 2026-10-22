@@ -11,7 +11,7 @@ import { services } from "../client/src/lib/service-content";
 
 const SITE = "https://www.coresolution.digital";
 const OUT = resolve("dist/public");
-const OG_IMAGE = `${SITE}/images/core-agent-workspace.png`;
+const OG_IMAGE = `${SITE}/images/core-agent-workspace.webp`;
 
 // Components read window/localStorage during render (scroll state, active nav
 // link, saved language). Give them a read-only stub for the build render; the
@@ -145,8 +145,9 @@ for (const meta of routes) {
   const extra = [
     `<meta property="og:url" content="${url}" />`,
     `<meta property="og:image" content="${OG_IMAGE}" />`,
-    `<meta property="og:image:width" content="1536" />`,
-    `<meta property="og:image:height" content="1024" />`,
+    `<meta property="og:image:type" content="image/webp" />`,
+    `<meta property="og:image:width" content="1200" />`,
+    `<meta property="og:image:height" content="630" />`,
     `<meta property="og:image:alt" content="CORE Solution Digital - AI agent dan otomasi proses bisnis" />`,
     `<meta name="twitter:image" content="${OG_IMAGE}" />`,
   ];

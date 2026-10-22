@@ -16,7 +16,10 @@ export default function ServicesSection() {
           <div><ShieldCheck size={17} /><span><strong>{lang === "id" ? "Eksekusi dengan kontrol" : "Execute with control"}</strong><small>Rules · Permissions · Approvals</small></span><Check size={13} /></div>
         </div>
         <details className="agent-interface-example"><summary>{lang === "id" ? "Lihat contoh antarmuka koordinasi tim" : "View a team coordination interface example"}</summary><figure className="agent-illustration">
-          <img src="/images/core-agent-workspace.png" width={1536} height={1024} loading="lazy" alt={lang === "id" ? "Ilustrasi workspace CORE AI assistant: percakapan, ringkasan leads, dan proses review tim." : "CORE AI assistant workspace illustration with a conversation, lead summary, and human review."} />
+          <picture>
+            <source srcSet="/images/core-agent-workspace-inline.webp" type="image/webp" />
+            <img src="/images/core-agent-workspace-inline.png" width={1536} height={1024} loading="lazy" decoding="async" alt={lang === "id" ? "Ilustrasi workspace CORE AI assistant: percakapan, ringkasan leads, dan proses review tim." : "CORE AI assistant workspace illustration with a conversation, lead summary, and human review."} />
+          </picture>
           <figcaption>{lang === "id" ? "Salah satu antarmuka sistem agent: review hasil dan koordinasi tim." : "One interface for an agent system: reviewing results and coordinating the team."}</figcaption>
         </figure></details>
       </article>
