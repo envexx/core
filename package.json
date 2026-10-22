@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "build:seo": "vite build && vite build --ssr ../prerender/render.tsx --outDir ../dist/prerender && node dist/prerender/render.js && node scripts/inline-css.mjs",
+    "build:seo": "vite build && vite build --ssr ../prerender/render.tsx --outDir ../dist/prerender && node dist/prerender/render.js",
     "start": "cross-env NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
