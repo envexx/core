@@ -9,13 +9,15 @@ import { useI18n } from "@/lib/i18n";
 export default function ContentLayout({ title, description, path, children }: { title: string; description: string; path: string; children: ReactNode }) {
   useEffect(() => {
     const previousTitle = document.title;
+    const canonicalUrl = path === "/" ? "https://www.coresolution.digital" : `https://www.coresolution.digital${path}`;
     const updates = [
       ['meta[name="description"]', "content", description],
       ['meta[property="og:title"]', "content", `${title} — CORE Solution Digital`],
       ['meta[property="og:description"]', "content", description],
+      ['meta[property="og:url"]', "content", canonicalUrl],
       ['meta[name="twitter:title"]', "content", `${title} — CORE Solution Digital`],
       ['meta[name="twitter:description"]', "content", description],
-      ['link[rel="canonical"]', "href", `https://coresolution.digital${path}`],
+      ['link[rel="canonical"]', "href", canonicalUrl],
     ];
     const previous = updates.map(([selector, attribute, value]) => {
       const element = document.querySelector(selector);
@@ -38,4 +40,3 @@ export function ProjectCTA() {
   const { lang } = useI18n();
   return <section className="agency-container page-project-cta"><div><span className="section-kicker">LET'S BUILD SOMETHING USEFUL</span><h2>{lang === "id" ? "Mulai dari proses bisnis Anda." : "Start with your business process."}</h2><p>{lang === "id" ? "Ceritakan pekerjaan yang ingin diperbaiki. Kita tentukan cakupan, integrasi, dan langkah awal yang masuk akal." : "Tell us which work you want to improve. We'll define the scope, integrations, and a practical first step."}</p></div><AgencyAction href="/#contact">{lang === "id" ? "Diskusikan kebutuhan" : "Discuss your needs"}<ArrowUpRight size={17} /></AgencyAction></section>;
 }
-
