@@ -16,7 +16,6 @@ import {
 } from "@/lib/blog-api";
 import ContentLayout, { Breadcrumbs, ProjectCTA } from "@/components/ContentLayout";
 import ArticleTile, { articleCategory as categoryLabel } from "@/components/ArticleTile";
-import { TextAnimate } from "@/components/ui/text-animate";
 import NotFound from "./not-found";
 
 export default function Blog({ categorySlug }: { categorySlug?: string }) {
@@ -91,15 +90,21 @@ export default function Blog({ categorySlug }: { categorySlug?: string }) {
         />
         <span className="section-kicker">CORE / FIELD NOTES</span>
         <h1>
-          <TextAnimate
-            text={
-              selectedCategory
-                ? categoryLabel(selectedCategory.category, lang)
-                : lang === "id"
-                ? "Ide yang berguna.\nUntuk pekerjaan nyata."
-                : "Useful ideas.\nFor real work."
-            }
-          />
+          {selectedCategory ? (
+            categoryLabel(selectedCategory.category, lang)
+          ) : lang === "id" ? (
+            <>
+              Ide yang berguna.
+              <br />
+              Untuk pekerjaan nyata.
+            </>
+          ) : (
+            <>
+              Useful ideas.
+              <br />
+              For real work.
+            </>
+          )}
         </h1>
         <p>{intro}</p>
       </section>
@@ -335,9 +340,7 @@ export function BlogArticle({ slug }: { slug: string }) {
             </span>
             <span>CORE Editorial</span>
           </div>
-          <h1>
-            <TextAnimate text={article.title} />
-          </h1>
+          <h1>{article.title}</h1>
           <p>{article.excerpt}</p>
           {article.category === "Case Studies" && (
             <span className="case-study-note">
